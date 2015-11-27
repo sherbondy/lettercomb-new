@@ -783,7 +783,7 @@
 						DevelopmentTeam = JB755UULPM;
 					};
 					B6F714811BCF126A0082A90F = {
-						DevelopmentTeam = TYQN4X28QA;
+						DevelopmentTeam = JB755UULPM;
 					};
 				};
 			};
@@ -1074,7 +1074,7 @@
 					"\"$(SRCROOT)/Source/lib\"",
 				);
 				OTHER_CFLAGS = "-DDEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.ejecta;
+				PRODUCT_BUNDLE_IDENTIFIER = com.unidextrous.lettercomb;
 				PRODUCT_NAME = LetterComb;
 				PROVISIONING_PROFILE = "";
 				SDKROOT = appletvos;
@@ -1105,7 +1105,7 @@
 					"\"$(SRCROOT)\"",
 					"\"$(SRCROOT)/Source/lib\"",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.ejecta;
+				PRODUCT_BUNDLE_IDENTIFIER = com.unidextrous.lettercomb;
 				PRODUCT_NAME = LetterComb;
 				PROVISIONING_PROFILE = "";
 				SDKROOT = appletvos;
