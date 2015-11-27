@@ -16,7 +16,7 @@
 (def left-top [24 80])
 (def radius 24)
 
-(def board               (atom (g/make-rect-board 7 12)))
+(def board               (atom (g/make-rect-board 12 18)))
 (def angle               (atom Math/PI))
 ;; the currently hovered cell
 (def hovered-cell        (atom [0 0]))
@@ -438,12 +438,19 @@
     (draw-menu! ctx)))
 
 (defn init! []
-  (reset! start-time (.getTime (js/Date.)))
+  (let [pixel-ratio (.-devicePixelRatio js/window)]
+    (set! (.-width canvas)  (* (.-innerWidth js/window) pixel-ratio))
+    (set! (.-height canvas) (* (.-innerHeight js/window) pixel-ratio))
+    (set! (.. canvas -style -width)  (str (.-innerWidth js/window) "px"))
+    (set! (.. canvas -style -height) (str (.-innerHeight js/window) "px"))
+    (.. ctx (scale pixel-ratio pixel-ratio)))
+
+  (reset! start-time (.getTime (js/Date.))
   (write-word! board [0 0] "hello")
   (write-word! board [1 1] "there")
 
   (add-event-listeners)
-  (game-loop))
+  (game-loop)))
 
 ;; (swap! board assoc-in [0 0] :a)
 ;; (swap! board assoc-in [11 6] :z)

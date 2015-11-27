@@ -70,7 +70,7 @@
    :item 50))
 
 (defn letter-at-index [i]
-  (keyword (String/fromCharCode
+  (keyword (js/String.fromCharCode
             (+ 65 i))))
 
 ;; should really normalize this so that things don't have to be 1-100
