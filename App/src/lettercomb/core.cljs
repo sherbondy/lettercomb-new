@@ -38,7 +38,7 @@
 
 (defn blacken! [ctx]
   (set! (.-fillStyle ctx) "#000")
-  (.fillRect ctx 0 0 640 960))
+  (.fillRect ctx 0 0 (.-width canvas) (.-height canvas)))
 
 ;; (blacken! ctx)
 
@@ -356,7 +356,7 @@
   (str/lower-case
    (apply str
           (for [cell word-cells]
-            (name (g/get-odd-r board cell))))))
+            (name (or (g/get-odd-r board cell) ""))))))
 
 (defn clear-selected-word! [a-board word-cells]
   (doseq [cell word-cells]
