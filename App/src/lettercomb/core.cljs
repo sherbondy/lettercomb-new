@@ -36,9 +36,15 @@
 (def word-set (set js/WORDS))
 (.log js/console (contains? word-set "hello"))
 
+(defn window-width []
+  (.-innerWidth js/window))
+
+(defn window-height []
+  (.-innerHeight js/window))
+
 (defn blacken! [ctx]
   (set! (.-fillStyle ctx) "#000")
-  (.fillRect ctx 0 0 (.-width canvas) (.-height canvas)))
+  (.fillRect ctx 0 0 (window-width) (window-height)))
 
 ;; (blacken! ctx)
 
@@ -86,7 +92,8 @@
     (apply str (conj (vec (repeat pad-size padding))
                      str-val))))
 
-(def timer-location [(- (.-width canvas) 8) 36])
+(def timer-location [(- (window-width) 8) 36])
+
 ;; (defn timer-redness [ms-left game-duration-ms]
 ;;   (.toString
 ;;    (Math/floor (* 16 (/ ms-left game-duration-ms)))
@@ -107,9 +114,9 @@
   (.restore ctx))
 
 (def menu-size [96 32])
-(def menu-position [(- (/ (.-width canvas) 2)
+(def menu-position [(- (/ (window-width) 2)
                        (/ (menu-size 0) 2))
-                    (- (.-height canvas)
+                    (- (window-height)
                        (menu-size 1)
                        16)])
 (defn draw-menu! [ctx]
@@ -213,12 +220,6 @@
 
 (defn pause! []
   (reset! playing? false))
-
-(set! (.-strokeStyle ctx) "#fff")
-(set! (.-lineWidth ctx) 2)
-(set! (.-font ctx)
-      (str "bold " font-size "px Courier"))
-
 
 ;; idea for intersection code:
 ;; shoot ray from center. Sample at regular interval
@@ -439,11 +440,16 @@
 
 (defn init! []
   (let [pixel-ratio (.-devicePixelRatio js/window)]
-    (set! (.-width canvas)  (* (.-innerWidth js/window) pixel-ratio))
-    (set! (.-height canvas) (* (.-innerHeight js/window) pixel-ratio))
-    (set! (.. canvas -style -width)  (str (.-innerWidth js/window) "px"))
-    (set! (.. canvas -style -height) (str (.-innerHeight js/window) "px"))
+    (set! (.-width canvas)  (* (window-width) pixel-ratio))
+    (set! (.-height canvas) (* (window-height) pixel-ratio))
+    (set! (.. canvas -style -width)  (str (window-width) "px"))
+    (set! (.. canvas -style -height) (str (window-height) "px"))
     (.. ctx (scale pixel-ratio pixel-ratio)))
+
+  (set! (.-strokeStyle ctx) "#fff")
+  (set! (.-lineWidth ctx) 2)
+  (set! (.-font ctx)
+        (str "bold " font-size "px Courier"))
 
   (reset! start-time (.getTime (js/Date.))
   (write-word! board [0 0] "hello")
