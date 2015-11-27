@@ -48,7 +48,7 @@
 (defn hex-width [radius]
   (* 2.0 radius cos-pi-over-six))
 
-(def board-h-count 11)
+(def board-h-count 9)
 (def board-v-count 11)
 (def board (atom (g/make-rect-board board-h-count board-v-count)))
 
@@ -56,7 +56,7 @@
 ;; should be a function of window and board boundaries to center board.
 (def left-top 
   [(/ (- (window-width)  (* board-h-count (hex-width radius)))  2)
-   (/ (- (window-height) (* board-v-count (hex-height radius))) 2)])
+   (/ (- (window-height) (* 0.75 board-v-count (hex-height radius))) 2)])
 
 (defn blacken! [ctx]
   (set! (.-fillStyle ctx) "#000")
