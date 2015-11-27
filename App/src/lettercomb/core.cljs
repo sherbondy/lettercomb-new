@@ -13,10 +13,8 @@
 ;; should be very careful to distinguish between
 ;; @board and board as arguments to functions...
 
-(def left-top [24 80])
 (def radius 24)
 
-(def board               (atom (g/make-rect-board 12 18)))
 (def angle               (atom Math/PI))
 ;; the currently hovered cell
 (def hovered-cell        (atom [0 0]))
@@ -41,6 +39,24 @@
 
 (defn window-height []
   (.-innerHeight js/window))
+
+(defn hex-height [radius]
+  (* 2.0 radius))
+
+(def cos-pi-over-six (Math/cos (/ Math/PI 6.0)))
+
+(defn hex-width [radius]
+  (* 2.0 radius cos-pi-over-six))
+
+(def board-h-count 11)
+(def board-v-count 11)
+(def board (atom (g/make-rect-board board-h-count board-v-count)))
+
+;; the left-top of the board to start drawing...
+;; should be a function of window and board boundaries to center board.
+(def left-top 
+  [(/ (- (window-width)  (* board-h-count (hex-width radius)))  2)
+   (/ (- (window-height) (* board-v-count (hex-height radius))) 2)])
 
 (defn blacken! [ctx]
   (set! (.-fillStyle ctx) "#000")
@@ -167,11 +183,9 @@
   (set! (.-fillStyle ctx) "#fff")
   (draw-letter! ctx center (name letter)))
 
-(defn width [radius]
-  (* 2.0 radius (Math/cos (/ Math/PI 6.0))))
 
 (defn center-at [[col row] [left top] radius]
-  (let [hex-w    (width radius)
+  (let [hex-w    (hex-width radius)
         y-offset (* 3 0.5 radius)
         x-offset (if (odd? row)
                    (/ hex-w 2.0)
