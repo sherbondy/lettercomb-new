@@ -1,7 +1,7 @@
 #import <UIKit/UIKit.h>
 #import "EJAppViewController.h"
 
-@interface AppDelegate : NSObject <UIApplicationDelegate>
+@interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (nonatomic, retain) UIWindow *window;
 @end
