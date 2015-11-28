@@ -1,6 +1,7 @@
 (defproject lettercomb "0.0.1"
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/clojurescript "1.7.170"]
+                 [org.omcljs/ambly "0.6.0"]
                  [org.clojure/core.match "0.3.0-alpha4"]]
   :plugins [[lein-cljsbuild "1.1.1"]]
   :cljsbuild {

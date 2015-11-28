@@ -417,7 +417,7 @@
 
 (add-watch current-word-cells :current-word
            (fn [k r o n]
-             (.log js/console
+             #_(.log js/console
                    (selected-word @board
                                   n))))
 
