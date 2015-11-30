@@ -211,6 +211,7 @@
 		5B7B76751619DB9700691910 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		5E77E80D181365072A819482 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		6201773C004B27D4AECAA310 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+		AA5D4C711C0D16D7000E701B /* Info-TV.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Info-TV.plist"; sourceTree = "<group>"; };
 		AA9F7C391C0A4FE5001F7AC4 /* libPods.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libPods.a; path = "Pods/../build/Debug-iphoneos/libPods.a"; sourceTree = "<group>"; };
 		B6074FF215F8E41600D987F9 /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
 		B607AB66132EA6C300D7C3EA /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
@@ -372,7 +373,6 @@
 		B6F629D016F353C700F16BAC /* EJBindingCanvasStyle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EJBindingCanvasStyle.m; sourceTree = "<group>"; };
 		B6F7147F1BCF116E0082A90F /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Source/lib/ios/JavaScriptCore.framework; sourceTree = "<group>"; };
 		B6F714ED1BCF126A0082A90F /* LetterComb.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LetterComb.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		B6F714EE1BCF126B0082A90F /* Info-TV.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Info-TV.plist"; path = "/Users/dominic/xcode/Ejecta/Resources/Info-TV.plist"; sourceTree = "<absolute>"; };
 		B6F714EF1BCF130C0082A90F /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Source/lib/tvos/JavaScriptCore.framework; sourceTree = "<group>"; };
 		B6F9AFBE169F81D400ABD91A /* EJBindingWindowEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EJBindingWindowEvents.h; sourceTree = "<group>"; };
 		B6F9AFBF169F81D400ABD91A /* EJBindingWindowEvents.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EJBindingWindowEvents.m; sourceTree = "<group>"; };
@@ -659,7 +659,7 @@
 				B637065D1A27BD5600F42B90 /* LaunchScreen.xib */,
 				B637065F1A27C15200F42B90 /* LaunchScreen-Logo.png */,
 				B608CC821BFDDF4600403582 /* Assets-TV.xcassets */,
-				B6F714EE1BCF126B0082A90F /* Info-TV.plist */,
+				AA5D4C711C0D16D7000E701B /* Info-TV.plist */,
 			);
 			path = Resources;
 			sourceTree = "<group>";

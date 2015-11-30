@@ -462,6 +462,7 @@
     (draw-menu! ctx)))
 
 (defn init! []
+  (.. js/ejecta (loadFont "CourierNewBold.ttf"))
   (let [pixel-ratio (.-devicePixelRatio js/window)]
     (set! (.-width canvas)  (* (window-width) pixel-ratio))
     (set! (.-height canvas) (* (window-height) pixel-ratio))
@@ -472,7 +473,7 @@
     (set! (.-strokeStyle ctx) "#fff")
     (set! (.-lineWidth ctx) 2)
     (set! (.-font ctx)
-          (str "bold " font-size "px Courier")))
+          (str "bold " font-size "px Courier-Bold")))
 
   (reset! start-time (.getTime (js/Date.))
   (write-word! board [0 0] "hello")

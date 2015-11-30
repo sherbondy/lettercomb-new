@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9060" systemVersion="14F1021" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9060" systemVersion="15C47a" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9051"/>
@@ -13,12 +13,14 @@
             <subviews>
                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LaunchScreen-Logo.png" translatesAutoresizingMaskIntoConstraints="NO" id="lpG-g1-tVl">
                     <rect key="frame" x="112" y="204" width="256" height="72"/>
+                    <animations/>
                     <constraints>
                         <constraint firstAttribute="height" constant="72" id="nMd-Xn-Qus"/>
                         <constraint firstAttribute="width" constant="256" id="s5J-sG-fqz"/>
                     </constraints>
                 </imageView>
             </subviews>
+            <animations/>
             <color key="backgroundColor" red="0.11372549019607843" green="0.11372549019607843" blue="0.10588235294117647" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
                 <constraint firstAttribute="centerY" secondItem="lpG-g1-tVl" secondAttribute="centerY" id="VD0-Jx-N6E"/>
