@@ -1,15 +1,31 @@
 PODS:
-  - Ambly (0.6.0):
-    - GCDWebServer/WebDAV (~> 3.2.2)
-  - GCDWebServer/Core (3.2.7)
-  - GCDWebServer/WebDAV (3.2.7):
+  - Ambly (0.6.1):
+    - GCDWebServer/WebDAV (>= 3.2.7)
+  - GCDWebServer/Core (3.3)
+  - GCDWebServer/WebDAV (3.3):
     - GCDWebServer/Core
 
 DEPENDENCIES:
-  - Ambly (~> 0.6.0)
+  - Ambly (from `https://github.com/sherbondy/ambly.git`)
+  - GCDWebServer/WebDAV (from `https://github.com/swisspol/GCDWebServer`, commit `c98941121a4b96a4fa4ad785790a4a3e119227a5`)
+
+EXTERNAL SOURCES:
+  Ambly:
+    :git: https://github.com/sherbondy/ambly.git
+  GCDWebServer:
+    :commit: c98941121a4b96a4fa4ad785790a4a3e119227a5
+    :git: https://github.com/swisspol/GCDWebServer
+
+CHECKOUT OPTIONS:
+  Ambly:
+    :commit: 8d9b9adf6498521ef4203a947bf769bc048f3401
+    :git: https://github.com/sherbondy/ambly.git
+  GCDWebServer:
+    :commit: c98941121a4b96a4fa4ad785790a4a3e119227a5
+    :git: https://github.com/swisspol/GCDWebServer
 
 SPEC CHECKSUMS:
-  Ambly: cf953b8208d534a999704f8a009897132c37a46f
-  GCDWebServer: 76a9540371d5f12f850b32ec7f555dd2d266e543
+  Ambly: a403bdafd3b5be490494a7bb5857aef4479e8598
+  GCDWebServer: 106463756391d814b6f506927bee0d6a75a0b427
 
 COCOAPODS: 0.39.0

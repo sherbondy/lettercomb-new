@@ -13,7 +13,11 @@
 ;; should be very careful to distinguish between
 ;; @board and board as arguments to functions...
 
-(def radius 24)
+;; userAgent check works on simulator as well as hardware, platform only works
+;; for real hardware.
+(def is-tv? (some? (re-find #"AppleTV" (.. js/navigator -userAgent))))
+
+(def radius (if is-tv? 32 24))
 
 (def angle               (atom Math/PI))
 ;; the currently hovered cell
@@ -29,7 +33,8 @@
 (def start-time          (atom nil)) ;; in miliseconds
 
 (def canvas (.getElementById js/document "canvas"))
-(def ctx (.getContext canvas "2d"))
+(def ctx (.. canvas 
+             (getContext "2d" #js{"antialias" is-tv? "antialiasSamples" 4})))
 
 (def word-set (set js/WORDS))
 (.log js/console (contains? word-set "hello"))
@@ -129,12 +134,18 @@
                (timer-location 1)))
   (.restore ctx))
 
-(def menu-size [96 32])
+(def font-size (/ (* radius 2) 3))
+(def q-font-size (/ font-size 4))
+
+(def menu-size [(* radius 4) (* radius 1.5)])
+
+;; bottom left position of the menu
 (def menu-position [(- (/ (window-width) 2)
                        (/ (menu-size 0) 2))
                     (- (window-height)
                        (menu-size 1)
-                       16)])
+                       (* radius 0.5))])
+
 (defn draw-menu! [ctx]
   (.save ctx)
   (set! (.-fillStyle ctx) "#000")
@@ -147,10 +158,11 @@
   (.fill ctx)
   (.stroke ctx)
   (set! (.-fillStyle ctx) "#fff")
-  (set! (.-textAlign ctx) "middle")
+  (set! (.-textAlign ctx) "center")
+  (set! (.-textBaseline ctx) "middle")
   (.fillText ctx "MENU"
-             (+ (menu-position 0) 28)
-             (+ (menu-position 1) 20))
+             (+ (menu-position 0) (* (menu-size 0) 0.5))
+             (+ (menu-position 1) (* (menu-size 1) 0.5)))
   (.restore ctx))
 
 ;; eventually make drawing in terms of protocols
@@ -163,9 +175,6 @@
     (line-to! ctx (hex-point center radius i)))
   (.fill ctx)
   (.stroke ctx))
-
-(def font-size 16)
-(def q-font-size (/ font-size 4))
 
 (defn draw-letter! [ctx [cx cy] letter]
   (.fillText ctx letter
@@ -458,12 +467,12 @@
     (set! (.-height canvas) (* (window-height) pixel-ratio))
     (set! (.. canvas -style -width)  (str (window-width) "px"))
     (set! (.. canvas -style -height) (str (window-height) "px"))
-    (.. ctx (scale pixel-ratio pixel-ratio)))
+    (.. ctx (scale pixel-ratio pixel-ratio))
 
-  (set! (.-strokeStyle ctx) "#fff")
-  (set! (.-lineWidth ctx) 2)
-  (set! (.-font ctx)
-        (str "bold " font-size "px Courier"))
+    (set! (.-strokeStyle ctx) "#fff")
+    (set! (.-lineWidth ctx) 2)
+    (set! (.-font ctx)
+          (str "bold " font-size "px Courier")))
 
   (reset! start-time (.getTime (js/Date.))
   (write-word! board [0 0] "hello")
