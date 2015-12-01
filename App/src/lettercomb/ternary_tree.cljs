@@ -23,9 +23,10 @@
         (if (empty? r-word)
           (assoc this :terminal? true)
           (let [letter   (if (= direction :center) (first r-word) letter)
-                new-leaf (TSTNode. letter false nil nil nil)]
+                old-leaf (get this direction)]
             (assoc this direction
-                        (insert new-leaf r-word)))))))
+                        (insert (or old-leaf (TSTNode. letter false nil nil nil))
+                                r-word)))))))
 
   (search [this word]
     (let [letter (first word)
