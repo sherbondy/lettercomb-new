@@ -99,7 +99,7 @@
 (defn line-to! [ctx [x y]]
   (.lineTo ctx x y))
 
-(def score-location [8 36])
+(def score-location [32 32])
 (defn draw-score! [ctx score]
   (.save ctx)
   (set! (.-fillStyle ctx) "#fff")
@@ -115,7 +115,7 @@
     (apply str (conj (vec (repeat pad-size padding))
                      str-val))))
 
-(def timer-location [(- (window-width) 8) 36])
+(def timer-location [(- (window-width) 32) 32])
 
 ;; (defn timer-redness [ms-left game-duration-ms]
 ;;   (.toString
