@@ -17,7 +17,8 @@
 ;; for real hardware.
 (def is-tv? (some? (re-find #"AppleTV" (.. js/navigator -userAgent))))
 
-(def radius (if is-tv? 32 24))
+(def radius (if is-tv? 48 24))
+(def line-width (if is-tv? 4 2))
 
 (def angle               (atom Math/PI))
 ;; the currently hovered cell
@@ -153,7 +154,7 @@
   (.rect ctx
          (menu-position 0) (menu-position 1)
          (menu-size 0) (menu-size 1))
-  (set! (.-lineWidth ctx) 2)
+  (set! (.-lineWidth ctx) line-width)
   (set! (.-strokeStyle ctx) "#fff")
   (.fill ctx)
   (.stroke ctx)
@@ -462,7 +463,6 @@
     (draw-menu! ctx)))
 
 (defn init! []
-  (.. js/ejecta (loadFont "CourierNewBold.ttf"))
   (let [pixel-ratio (.-devicePixelRatio js/window)]
     (set! (.-width canvas)  (* (window-width) pixel-ratio))
     (set! (.-height canvas) (* (window-height) pixel-ratio))
@@ -471,7 +471,7 @@
     (.. ctx (scale pixel-ratio pixel-ratio))
 
     (set! (.-strokeStyle ctx) "#fff")
-    (set! (.-lineWidth ctx) 2)
+    (set! (.-lineWidth ctx) line-width)
     (set! (.-font ctx)
           (str "bold " font-size "px Courier-Bold")))
 
