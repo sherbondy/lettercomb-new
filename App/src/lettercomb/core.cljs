@@ -399,14 +399,12 @@
 (defn handle-release [& [e]]
   (reset! touch-down? false)
   (when e (handle-move e))
-  (when (and @open-cell
-             (empty? @current-word-cells))
+  (when (and @open-cell (empty? @current-word-cells))
     (write-letter! board @open-cell @next-letter)
     (reset! open-cell nil)
     (pick-random-letter!))
 
-  (let [hovered-word (selected-word @board
-                                    @current-word-cells)]
+  (let [hovered-word (selected-word @board @current-word-cells)]
     (when (contains? word-set hovered-word)
       (.log js/console (str hovered-word " is a real word..."))
       (clear-selected-word! board @current-word-cells)
@@ -421,9 +419,9 @@
 
 (defn handle-start [& [e]]
   (reset! touch-down? true)
-  (when e (hover-cell! e))
-  (when (occupied? @board @hovered-cell)
-    (reset! current-word-cells [@hovered-cell])))
+  (when e (hover-cell! e)
+    (when (occupied? @board @hovered-cell)
+      (reset! current-word-cells [@hovered-cell]))))
 
 (defn handle-touch-start [e]
   (let [touch (first-touch e)]
@@ -497,7 +495,7 @@
                   (not= left-stick-v 0)))
         ;; values will be -1 to 1
         (let [stick-angle (Math/atan2 left-stick-h left-stick-v)]
-          (println "stick angle: " stick-angle)
+          #_(println "stick angle: " stick-angle)
           (handle-angle stick-angle))))))
 
 (js/setInterval
