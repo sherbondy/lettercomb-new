@@ -278,12 +278,12 @@
     v))
 
 ;; needs better name
-(defn next-coord [angle radius [x y]]
+(defn next-coord [angle delta [x y]]
   "Given the [x y] position of a cell in odd-r,
    and an angle of movement, determine another next
-   position in the same direction"
-   (let [next-x (+ x (* (Math/sin angle) radius))
-         next-y (- y (* (Math/cos angle) radius))]
+   position to test in the same direction"
+   (let [next-x (+ x (* (Math/sin angle) delta))
+         next-y (- y (* (Math/cos angle) delta))]
      [next-x next-y]))
 
 (defn out-of-bounds? [board point]
@@ -306,10 +306,10 @@
 
 ;; point = the origin point of the cannon
 ;; or the current point
-(defn destination-cell [board angle radius & point]
+(defn destination-cell [board angle delta & point]
   (let [point                   (or point page-center)
         current-cell            (v->odd-r point)
-        [x y :as dest-coords]   (next-coord angle radius point)
+        [x y :as dest-coords]   (next-coord angle delta point)
         [col row :as dest-cell] (v->odd-r dest-coords)]
     ;; if next cell is occupied or out of bounds,
     ;; destination is at the current point's cell
@@ -320,7 +320,7 @@
         current-cell
         nil)
       ;; otherwise, keep going down the line
-      (recur board angle radius dest-coords))))
+      (recur board angle delta dest-coords))))
 
 ;; (next-cell 0 32 [0 250])
 ;; (destination-cell @board 0 radius
@@ -355,7 +355,7 @@
 
 (defn handle-angle [new-angle]
   (reset! angle new-angle)
-  (when-let [dest (destination-cell @board new-angle radius)]
+  (when-let [dest (destination-cell @board new-angle (* 0.5 radius))]
     #_(println "destination cell: " dest)
     (reset! open-cell dest)))
 
