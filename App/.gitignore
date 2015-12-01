@@ -6,3 +6,5 @@ out
 .lein-repl-history
 .nrepl-port
 *.iml
+figwheel_server.log
+resources/public/js/out

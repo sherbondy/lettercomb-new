@@ -1,6 +1,7 @@
 (ns lettercomb.core
   (:require [lettercomb.letters :as l]
             [lettercomb.grid :as g]
+            [lettercomb.ternary-tree :as tnt]
             [clojure.string :as str]))
 
 (enable-console-print!)
