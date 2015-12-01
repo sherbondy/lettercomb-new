@@ -3,9 +3,10 @@
             [lettercomb.grid :as g]
             [clojure.string :as str]))
 
+(enable-console-print!)
+
 (when (.-ejecta js/window)
   (.include js/ejecta "scrabble-words.js"))
-
 
 ;; add a device orientation listener and rotate
 ;; letters based on alpha
@@ -291,12 +292,25 @@
 (defn occupied? [board cell]
   (not= :blank (g/get-odd-r board cell)))
 
+(def canvas-offset
+  [(.-offsetLeft canvas) (.-offsetTop canvas)])
+
+(def the-center
+  (board-center @board left-top radius))
+
+;; the center of the board relative to the whole page
+;; only useful in browser, not ejecta...
+(def page-center
+  [(+ (the-center 0) (canvas-offset 0))
+   (+ (the-center 1) (canvas-offset 1))])
+
 ;; point = the origin point of the cannon
 ;; or the current point
-(defn destination-cell [board angle radius point]
-  (let [[x y :as dest-coords]   (next-coord angle radius point)
-        [col row :as dest-cell] (v->odd-r dest-coords)
-        current-cell            (v->odd-r point)]
+(defn destination-cell [board angle radius & point]
+  (let [point                   (or point page-center)
+        current-cell            (v->odd-r point)
+        [x y :as dest-coords]   (next-coord angle radius point)
+        [col row :as dest-cell] (v->odd-r dest-coords)]
     ;; if next cell is occupied or out of bounds,
     ;; destination is at the current point's cell
     (if (or (occupied? board dest-cell)
@@ -314,17 +328,6 @@
 
 ;; (board-center @board left-top radius)
 
-(def canvas-offset
-  [(.-offsetLeft canvas) (.-offsetTop canvas)])
-
-(def the-center
-  (board-center @board left-top radius))
-
-;; the center of the board relative to the whole page
-;; only useful in browser, not ejecta...
-(def page-center
-  [(+ (the-center 0) (canvas-offset 0))
-   (+ (the-center 1) (canvas-offset 1))])
 
 (defn write-letter! [a-board [col row] letter-kw]
   (swap! a-board assoc-in [row col]
@@ -350,16 +353,19 @@
         coord (v->odd-r v)]
     (reset! hovered-cell coord)))
 
+(defn handle-angle [new-angle]
+  (reset! angle new-angle)
+  (when-let [dest (destination-cell @board new-angle radius)]
+    #_(println "destination cell: " dest)
+    (reset! open-cell dest)))
+
 (defn handle-move [e]
   (let [v         (e->v e)
         new-angle (v->angle page-center v)]
-    (reset! angle new-angle)
-    (let [dest (destination-cell @board new-angle radius v)]
-      (reset! open-cell dest)))
+    (handle-angle new-angle))
 
   (when @touch-down?
     (hover-cell! e)
-
     ;;continue building up the hovered word
     (if (occupied? @board @hovered-cell)
       (when (and
@@ -390,9 +396,9 @@
 (defn increase-score! [added-score]
   (swap! score + added-score))
 
-(defn handle-release [e]
+(defn handle-release [& [e]]
   (reset! touch-down? false)
-  (handle-move e)
+  (when e (handle-move e))
   (when (and @open-cell
              (empty? @current-word-cells))
     (write-letter! board @open-cell @next-letter)
@@ -405,17 +411,17 @@
       (.log js/console (str hovered-word " is a real word..."))
       (clear-selected-word! board @current-word-cells)
       (reset! current-word-cells [])
-      (increase-score! (l/word-score hovered-word)))
-  )
+      (increase-score! (l/word-score hovered-word))))
+
   (reset! hovered-cell nil))
 
 (defn handle-touch-release [e]
   (let [touch (first-touch e)]
     (handle-release touch)))
 
-(defn handle-start [e]
+(defn handle-start [& [e]]
   (reset! touch-down? true)
-  (hover-cell! e)
+  (when e (hover-cell! e))
   (when (occupied? @board @hovered-cell)
     (reset! current-word-cells [@hovered-cell])))
 
@@ -431,17 +437,72 @@
                    (selected-word @board
                                   n))))
 
+;; map id to index...
+(def gamepads (atom {}))
+(def p1-gamepad (atom nil))
+
+(defn update-p1-gamepad! []
+  (let [gamepads (.getGamepads js/navigator)]
+    (println "setting p1 gamepad...")
+    (if-not (empty? gamepads)
+      (reset! p1-gamepad (first gamepads))
+      (reset! p1-gamepad nil))))
+
+(defn add-gamepad! [e]
+  (println "gamepad added...")
+  (let [index (.. e -gamepad -index)]
+  (swap! gamepads assoc (.. e -gamepad -id) index)
+  (when (= index 0)
+    (update-p1-gamepad!))))
+
+(defn remove-gamepad! [e]
+  (println "gamepad removed...")
+  (swap! gamepads dissoc (.. e -gamepad -id))
+  (update-p1-gamepad!))
+
 (defn add-event-listeners []
   (if-not (.-ejecta js/window)
     (do
       (.addEventListener canvas "mousemove" handle-move)
       (.addEventListener canvas "mouseup" handle-release)
       (.addEventListener canvas "mousedown" handle-start))
-    (do
-      (.addEventListener canvas "touchmove" handle-touch-move)
-      (.addEventListener canvas "touchend" handle-touch-release)
-      (.addEventListener canvas "touchstart" handle-touch-start))
-      ))
+    (if is-tv?
+      (do
+        ;; need to query the gamepad axes and buttons during game loop to respond to events...
+        (.addEventListener js/window "gamepadconnected" add-gamepad!)
+        (.addEventListener js/window "gamepaddisconnected" remove-gamepad!))
+      (do
+        (.addEventListener canvas "touchmove" handle-touch-move)
+        (.addEventListener canvas "touchend" handle-touch-release)
+        (.addEventListener canvas "touchstart" handle-touch-start)))))
+
+(defn handle-gamepads []
+  (when-let [pad @p1-gamepad]
+    (let [buttons (.-buttons pad)
+          a       (aget buttons 0)
+          up-v    (.-value (aget buttons 12))
+          down-v  (.-value (aget buttons 13))
+          left-v  (.-value (aget buttons 14))
+          right-v (.-value (aget buttons 15))
+          left-stick-h (* (max left-v right-v) (if (> left-v right-v) -1 1))
+          left-stick-v (* (max up-v down-v)    (if (> down-v up-v) -1 1))]
+      (if (.-pressed a)
+        (handle-start)
+        ;; otherwise, see if pressed before...
+        (when @touch-down?
+          (handle-release)))
+
+      (when (and (not @touch-down?)
+              (or (not= left-stick-h 0)
+                  (not= left-stick-v 0)))
+        ;; values will be -1 to 1
+        (let [stick-angle (Math/atan2 left-stick-h left-stick-v)]
+          (println "stick angle: " stick-angle)
+          (handle-angle stick-angle))))))
+
+(js/setInterval
+  (fn []
+    (handle-gamepads)) 16)
 
 ;; 5 minutes, dog
 (def game-duration-ms (* 5 60 1000))
