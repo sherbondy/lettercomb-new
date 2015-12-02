@@ -4,13 +4,15 @@
   ;; returns true or false if tree contains word
   (search [this word])
   ;; returns a new tree with the word added
-  (insert [this word]))
+  (insert [this word])
+  (size [this]))
 
 ;; a ternary search tree node has a:
 ;; letter (its value)
 ;; terminal? (boolean, indicates whether this node marks the end of a valid search word)
 ;; left / center / right (tst-node, can be nil)
-(defrecord TSTNode [letter terminal? left center right]
+;; size = number of subnodes...
+(defrecord TSTNode [letter terminal? left center right size]
   TSTree
   (insert [this word]
     (let [letter   (first word)
@@ -21,12 +23,21 @@
               (> letter (:letter this)) :right
               :else :center)]
         (if (empty? r-word)
-          (assoc this :terminal? true)
+          (assoc this :terminal? true :size 1)
           (let [letter   (if (= direction :center) (first r-word) letter)
-                old-leaf (get this direction)]
-            (assoc this direction
-                        (insert (or old-leaf (TSTNode. letter false nil nil nil))
-                                r-word)))))))
+                old-leaf (get this direction)
+                new-node (assoc this
+                           direction
+                           (insert
+                             (or old-leaf
+                                 (TSTNode. letter false nil nil nil 1))
+                             r-word))]
+            (assoc
+              new-node
+              :size (+ (get-in new-node [:left :size] 0)
+                       (get-in new-node [:center :size] 0)
+                       (get-in new-node [:right :size] 0)
+                       1)))))))
 
   (search [this word]
     (let [letter (first word)
@@ -40,7 +51,19 @@
              (= letter (:letter this)) (:center this)
              :else (:right this))]
           (search node r-word)
-          false)))))
+          false))))
+
+  (size [this]
+    (:size this)))
 
 ;; next add a method to insert a dictionary by first sorting it
 ;; then recursively adding the median, left median, right median, etc...
+
+(defn serialize-tst [tst]
+  (if tst
+    (str "[" (:letter tst) (if (:terminal? tst) 1 0)
+         (serialize-tst (:left tst))
+         (serialize-tst (:center tst))
+         (serialize-tst (:right tst))
+         "]")
+    "\0"))
