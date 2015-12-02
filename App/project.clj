@@ -6,12 +6,18 @@
   :plugins [[lein-cljsbuild "1.1.1"]
             [lein-figwheel "0.5.0-2"]]
   :cljsbuild {
-    :builds [{
+    :builds {:min {
+              :source-paths ["src"]
+              :compiler {:main "lettercomb.core"
+                         :output-to "resources/public/js/index.js"
+                         :source-map "resources/public/js/index.map.js"
+                         :output-dir "resources/public/js/out-min"
+                         :optimizations :whitespace}}
+             :dev {
               :source-paths ["src"]
               :figwheel true
               :compiler {:main "lettercomb.core"
-                         :output-to "index.js"
+                         :output-to "resources/public/js/index.js"
+                         :source-map "resources/public/js/index.map.js"
                          :output-dir "resources/public/js/out"
-                         :asset-path "js/out"
-                         :optimizations :none
-                         :source-map "index.map.js"}}]})
+                         :asset-path "js/out"}}}})

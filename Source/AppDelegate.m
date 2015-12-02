@@ -22,7 +22,7 @@
 	application.idleTimerDisabled = YES;
 	
 	window = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
-	[self loadViewControllerWithScriptAtPath:@"index.js"];
+	[self loadViewControllerWithScriptAtPath:@"resources/public/js/index.js"];
     
     EJJavaScriptView* appView = (EJJavaScriptView*)window.rootViewController.view;
     JSGlobalContextRef ctx = appView.jsGlobalContext;
