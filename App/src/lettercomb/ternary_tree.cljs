@@ -7,6 +7,24 @@
   (insert [this word])
   (size [this]))
 
+;; @TODO: BUG: Individual letters return true for search
+
+(defn pick-direction [letter node-letter]
+  (cond
+    (< letter node-letter) :left
+    (> letter node-letter) :right
+    :else :center))
+
+(defn get-node-size [node]
+  (inc
+    (apply + (map #(get-in node [% :size] 0)
+                  [:left :center :right]))))
+
+(declare TSTNode)
+
+(defn letter-node [letter]
+  (TSTNode. letter false nil nil nil 1))
+
 ;; a ternary search tree node has a:
 ;; letter (its value)
 ;; terminal? (boolean, indicates whether this node marks the end of a valid search word)
@@ -14,44 +32,34 @@
 ;; size = number of subnodes...
 (defrecord TSTNode [letter terminal? left center right size]
   TSTree
+  ;; inserting blank word should not change state
+  ;;
   (insert [this word]
-    (let [letter   (first word)
-          r-word   (rest word)]
-      (let [direction
-            (cond
-              (< letter (:letter this)) :left
-              (> letter (:letter this)) :right
-              :else :center)]
-        (if (empty? r-word)
-          (assoc this :terminal? true :size 1)
-          (let [letter   (if (= direction :center) (first r-word) letter)
-                old-leaf (get this direction)
-                new-node (assoc this
-                           direction
-                           (insert
-                             (or old-leaf
-                                 (TSTNode. letter false nil nil nil 1))
-                             r-word))]
-            (assoc
-              new-node
-              :size (+ (get-in new-node [:left :size] 0)
-                       (get-in new-node [:center :size] 0)
-                       (get-in new-node [:right :size] 0)
-                       1)))))))
+    (let [letter (first word)
+          r-word (rest word)]
+      (let [dir      (pick-direction letter (:letter this))
+            old-leaf (get this dir)]
+        (if-let [n-letter (if (= dir :center) (first r-word) letter)]
+          (->
+            this
+
+            (#(assoc %
+               dir
+               (insert (or old-leaf (letter-node n-letter)) r-word)))
+
+            (#(assoc % :size (get-node-size %))))
+
+          (assoc this :terminal? (= letter (:letter this)))))))
 
   (search [this word]
     (let [letter (first word)
           r-word (rest word)]
       (if (empty? r-word)
-        (:terminal? this)
-        (if-let
-          [node
-           (cond
-             (< letter (:letter this)) (:left this)
-             (= letter (:letter this)) (:center this)
-             :else (:right this))]
-          (search node r-word)
-          false))))
+        (and (:terminal? this) (= letter (:letter this)))
+        (let [direction (pick-direction letter (:letter this))]
+          (if-let [node (get this direction)]
+            (search node r-word)
+            false)))))
 
   (size [this]
     (:size this)))
@@ -62,35 +70,40 @@
 #_(defn serialize-tst [tst]
   "awesome typed array stuff")
 
+(enable-console-print!)
+
 ;; takes a word as input, returns a root tst node with that word
 ;; (and is-terminal? set to true)
 (defn build-root-word-tst [word]
-  (TSTNode. word true nil nil nil 1))
+  (let [root-node (letter-node (first word))]
+    (insert root-node word)))
 
 (defn add-slice-tst [sorted-array tst]
-  (let [len       (.-length sorted-array)
+  (let [len       (count sorted-array)
         med-i     (bit-shift-right len 1)
         med-word  (aget sorted-array med-i)]
-    (if med-word
-      (let [left-array  (.slice sorted-array 0 med-i)
-            right-array (.slice sorted-array med-i len)]
-        ;; had issues expressing with threading macro,
-        ;; maybe cljs bug with anonymous functions? retry off plane...
-        (->
-          tst
-          (#(if (exists? %)
-              (insert % med-word)
-              (build-root-word-tst med-word)))
+    (let [left-array  (.slice sorted-array 0 med-i)
+          right-array (.slice sorted-array (inc med-i) len)]
+      (println "left array: " left-array ", median: " med-word
+               ", right array: " right-array)
+      (->
+        tst
+        (#(if %
+            (insert % med-word)
+            (build-root-word-tst med-word)))
+        ;; recurs infinitely because we do not bottom out
+        ;; when arrays only have one element...
+        (#(cond (empty? left-array) %
+                (= 1 (count left-array)) (insert % (first left-array))
+                :else (add-slice-tst left-array %)))
 
-          (#(if (empty? left-array)
-              % (add-slice-tst left-array %)))
-
-          (#(if (empty? right-array)
-              % (add-slice-tst right-array %)))))
-        tst)))
+        (#(cond (empty? right-array) %
+                (= 1 (count right-array)) (insert % (first right-array))
+                :else (add-slice-tst right-array %)))))))
 
 (defn build-tst [dict-array]
-  "takes a js"
+  "takes a js array as input, clones and sorts it, then
+   converts into a ternary search tree, returning the TSTree (TSTNode root)"
   (let [cloned-array (.. dict-array (slice 0 (.-length dict-array)))
         sorted-array (.sort cloned-array)]
     (add-slice-tst sorted-array nil)))
