@@ -37,29 +37,36 @@
   (insert [this word]
     (let [letter (first word)
           r-word (rest word)]
-      (let [dir      (pick-direction letter (:letter this))
-            old-leaf (get this dir)]
-        (if-let [n-letter (if (= dir :center) (first r-word) letter)]
-          (->
-            this
+        (let [dir      (pick-direction letter (:letter this))
+              old-leaf (get this dir)]
+          (if-let [n-letter (if (= dir :center) (first r-word) letter)]
+            (->
+              this
 
-            (#(assoc %
-               dir
-               (insert (or old-leaf (letter-node n-letter)) r-word)))
+              (#(assoc %
+                 dir
+                 (insert (or old-leaf (letter-node n-letter)) r-word)))
 
-            (#(assoc % :size (get-node-size %))))
+              (#(assoc % :size (get-node-size %))))
 
-          (assoc this :terminal? (= letter (:letter this)))))))
+            (assoc this :terminal?
+                        (or (:terminal? this)
+                            (= letter (:letter this))
+                            (= letter (:letter old-leaf))))))))
 
   (search [this word]
     (let [letter (first word)
           r-word (rest word)]
-      (if (empty? r-word)
-        (and (:terminal? this) (= letter (:letter this)))
-        (let [direction (pick-direction letter (:letter this))]
-          (if-let [node (get this direction)]
-            (search node r-word)
-            false)))))
+      (println this)
+      (println letter)
+      (let [direction (pick-direction letter (:letter this))]
+        (if-let [node (get this direction)]
+          (if (empty? r-word)
+            (and (:terminal? node) (= letter (:letter node)))
+            (search node r-word))
+          (and (:terminal? this)
+               (= letter (:letter this))
+               (empty? r-word))))))
 
   (size [this]
     (:size this)))
@@ -91,8 +98,7 @@
         (#(if %
             (insert % med-word)
             (build-root-word-tst med-word)))
-        ;; recurs infinitely because we do not bottom out
-        ;; when arrays only have one element...
+
         (#(cond (empty? left-array) %
                 (= 1 (count left-array)) (insert % (first left-array))
                 :else (add-slice-tst left-array %)))
