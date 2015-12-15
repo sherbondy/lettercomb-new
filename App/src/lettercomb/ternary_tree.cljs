@@ -1,4 +1,6 @@
-(ns lettercomb.ternary-tree)
+(ns lettercomb.ternary-tree
+  (:require [clojure.string :as str]
+            [cljs.test :refer-macros [deftest is testing run-tests]]))
 
 (defprotocol TSTree
   ;; returns true or false if tree contains word
@@ -9,16 +11,16 @@
 
 ;; @TODO: BUG: Individual letters return true for search
 
-(defn pick-direction [letter node-letter]
+(defn pick-child [letter node-letter]
   (cond
-    (< letter node-letter) :left
-    (> letter node-letter) :right
-    :else :center))
+    (< letter node-letter) :lo
+    (> letter node-letter) :hi
+    :else :eq))
 
 (defn get-node-size [node]
   (inc
     (apply + (map #(get-in node [% :size] 0)
-                  [:left :center :right]))))
+                  [:lo :eq :hi]))))
 
 (declare TSTNode)
 
@@ -30,46 +32,73 @@
 ;; terminal? (boolean, indicates whether this node marks the end of a valid search word)
 ;; left / center / right (tst-node, can be nil)
 ;; size = number of subnodes...
-(defrecord TSTNode [letter terminal? left center right size]
+(defrecord TSTNode [letter terminal? lo eq hi size]
   TSTree
   ;; inserting blank word should not change state
   ;;
   (insert [this word]
-    (let [letter (first word)
-          r-word (rest word)]
-        (let [dir      (pick-direction letter (:letter this))
-              old-leaf (get this dir)]
-          (if-let [n-letter (if (= dir :center) (first r-word) letter)]
+    (let [letter    (first word)
+          r-word    (subs word 1)]
+      (if-not (str/blank? r-word)
+        (let [child-key (pick-child letter (:letter this))]
             (->
               this
 
-              (#(assoc %
-                 dir
-                 (insert (or old-leaf (letter-node n-letter)) r-word)))
+              ((fn [root]
+                (let [n-letter (first r-word)
+                      n-r-word (subs r-word 1)
+                      node (or (get this child-key)
+                               (letter-node n-letter))
+                      n-node (if-not (str/blank? r-word)
+                               (insert node r-word)
+                               node)]
+                 (assoc root
+                   child-key
+                   (update
+                     n-node
+                     :terminal?
+                     (fn [v]
+                       (println "n-node: " n-node)
+                       (println "n-letter: " n-letter)
+                       (println "n-r-word: " n-r-word)
+                       (or v
+                           (and
+                             (str/blank? n-r-word)
+                             (= (:letter n-node) n-letter)))))))))
 
-              (#(assoc % :size (get-node-size %))))
-
-            (assoc this :terminal?
-                        (or (:terminal? this)
-                            (= letter (:letter this))
-                            (= letter (:letter old-leaf))))))))
+              ((fn [root] (assoc root :size (get-node-size root))))))
+        this)))
 
   (search [this word]
     (let [letter (first word)
-          r-word (rest word)]
-      (println this)
-      (println letter)
-      (let [direction (pick-direction letter (:letter this))]
-        (if-let [node (get this direction)]
-          (if (empty? r-word)
-            (and (:terminal? node) (= letter (:letter node)))
-            (search node r-word))
-          (and (:terminal? this)
-               (= letter (:letter this))
-               (empty? r-word))))))
+          r-word (subs word 1)]
+      (println "this: " this)
+      (println "letter: " letter, "rest: " r-word)
+      ;; should always be checking equality with eq node
+      ;; ORDER IS WRONG: should check if r-word is blank first...
+      (if (str/blank? r-word)
+        ;; node does not exist, terminate the search
+        (and
+          (:terminal? this)
+          (= letter (:letter this)))
+
+        (let [child-key (pick-child letter (:letter this))]
+          (println "child: " child-key)
+          (if-let [node (get this child-key)]
+            ;; @TODO: search for whole word still if letter not matched
+            (if (= letter (:letter this))
+              (search node r-word)
+              (search node word))
+            false)))))
 
   (size [this]
     (:size this)))
+
+
+
+;; @TODO: BUG, (def result (build-tst #js["a" "abba" "cabba" "car" "cat" "dog"]))
+;; (search result "digg")
+;; => true
 
 ;; next add a method to insert a dictionary by first sorting it
 ;; then recursively adding the median, left median, right median, etc...
@@ -91,7 +120,7 @@
         med-word  (aget sorted-array med-i)]
     (let [left-array  (.slice sorted-array 0 med-i)
           right-array (.slice sorted-array (inc med-i) len)]
-      (println "left array: " left-array ", median: " med-word
+      #_(println "left array: " left-array ", median: " med-word
                ", right array: " right-array)
       (->
         tst
@@ -113,3 +142,30 @@
   (let [cloned-array (.. dict-array (slice 0 (.-length dict-array)))
         sorted-array (.sort cloned-array)]
     (add-slice-tst sorted-array nil)))
+
+
+(deftest test-letter-node
+  (let [a-node (letter-node "a")]
+    (is (= (size a-node) 1))
+    (is (false? (search a-node "a")))
+    (let [an-node (insert a-node "an")]
+      (is (= (size an-node) 2))
+      (is (true? (search an-node "an")))
+      (is (false? (search an-node "a"))))))
+
+
+(deftest test-noop
+  (let [a-node (letter-node "a")
+        an-node (insert a-node "an")
+        and-node (insert an-node "and")]
+    (is (= (size and-node) 3))
+    (is (true? (search and-node "and")))
+    (is (true? (search and-node "an")))
+    (let [still-and-node (insert and-node "")]
+      (is (false? (search still-and-node "a")))
+      (is (true? (search still-and-node "an")))
+      (is (true? (search still-and-node "and")))
+      (is (= 3 (size still-and-node))))))
+
+
+(run-tests)
