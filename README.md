@@ -9,6 +9,25 @@ Ejecta is published under the [MIT Open Source License](http://opensource.org/li
 
 ## Recent Breaking Changes
 
+### 2015-12-12 - Use OS provided JavaScriptCore library 
+
+Since [08741b4](https://github.com/phoboslab/Ejecta/commit/08741b4489ff945b117ebee0333c7eb7a6177c2e) Ejecta uses the JSC lib provided by iOS and tvOS instead of bundling a custom fork of it. This mainly means two things: The resulting binary will be much smaller and reading/writing of Typed Arrays is much slower.
+
+This only affects WebGL and the `get/setImageData()` functions for Canvas2D. Some tests indicate that the performance is still good enough for most WebGL games. On 64bit systems it's highly optimized to take about 7ms/Megabyte for reading and about 20ms/Megabyte for writing. It's much slower on 32bit systems, though.
+
+More info about this change can be found [in my blog](http://phoboslab.org/log/2015/11/the-absolute-worst-way-to-read-typed-array-data-with-javascriptcore). Please comment on [this Webkit bug](https://bugs.webkit.org/show_bug.cgi?id=120112) if you want to have fast Typed Array support again.
+
+### 2015-11-27 – Allowed orientation change
+
+Allowed interface orientations should now be set using the "Device Orientation" checkboxes in the Project's General settings. Ejecta now rotates to all allowed orientations automatically. If the window size changes due to a rotation (i.e. when rotating from landscape to portrait or vice versa), the window's `resize` event is fired.
+
+```javascript
+window.addEventListener('resize', function() {
+	// Resize your screen canvas here if needed.
+	console.log('new window size:', window.innerWidth, window.innerHeight);
+});
+```
+
 ### 2015-11-09 - Moved Antialias (MSAA) settings to getContext options
 
 The `canvas.MSAAEnabled` and `canvas.MSAASamples` properties have been removed. Instead, you can now specify antialias settings in a separate options object when calling `getContext()`, similar to how it works in a browser. Antialias now works on 2D and WebGL contexts.
@@ -22,7 +41,6 @@ var gl = canvas.getContext('webgl', {antialias: true, antialiasSamples: 4});
 
 var ctx = canvas.getContext('2d', {antialias: true, antialiasSamples: 4});
 ```
-
 
 ### 2015-11-08 - Removed automatic pixel doubling for retina devices
 

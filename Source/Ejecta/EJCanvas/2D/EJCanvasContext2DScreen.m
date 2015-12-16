@@ -48,11 +48,11 @@
 - (void)resizeToWidth:(short)newWidth height:(short)newHeight {
 	[self flushBuffers];
 	
-	bufferWidth = width = newWidth;
-	bufferHeight = height = newHeight;
+	width = newWidth;
+	height = newHeight;
 	
 	CGRect frame = self.frame;
-	float contentScale = bufferWidth / frame.size.width;
+	float contentScale = MAX(width/frame.size.width, height/frame.size.height);
 	
 	NSLog(
 		@"Creating ScreenCanvas (2D): "
@@ -84,6 +84,14 @@
 	glBindRenderbuffer(GL_RENDERBUFFER, viewRenderBuffer);
 	[glContext renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)glview.layer];
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, viewRenderBuffer);
+	
+	// The renderbuffer may be bigger than the requested size; make sure to store the real
+	// renderbuffer size.
+	GLint rbWidth, rbHeight;
+	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &rbWidth);
+	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &rbHeight);
+	bufferWidth = rbWidth;
+	bufferHeight = rbHeight;
 	
 	// Flip the screen - OpenGL has the origin in the bottom left corner. We want the top left.
 	upsideDown = true;

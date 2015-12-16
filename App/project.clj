@@ -17,7 +17,7 @@
               :source-paths ["src"]
               :figwheel true
               :compiler {:main "lettercomb.core"
-                         :output-to "resources/public/js/index.js"
-                         :source-map "resources/public/js/index.map.js"
+                         :output-to "resources/public/js/index-dev.js"
+                         :source-map "resources/public/js/index-dev.map.js"
                          :output-dir "resources/public/js/out"
                          :asset-path "js/out"}}}})

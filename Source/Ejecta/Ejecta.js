@@ -92,9 +92,10 @@ window.console = {
 	_log: function(level, args, deep) {
 		var s = level + ':';
 		for (var i = 0; i < args.length; i++) {
-			s += ' ' + (typeof(args[i]) !== 'object'
-				? args[i]
-				: window.console._toString(args[i], deep));
+			var arg = args[i];
+			s += ' ' + (!arg || typeof(arg) !== 'object'
+				? arg
+				: window.console._toString(arg, deep));
 		}
 		ej.log( s );
 	},
@@ -186,6 +187,9 @@ window.Event = function (type) {
 };
 
 window.location = { href: 'index' };
+window.location.reload = function() {
+    ejecta.load('index.js');
+}
 
 // Set up a "fake" HTMLElement
 HTMLElement = function( tagName ){

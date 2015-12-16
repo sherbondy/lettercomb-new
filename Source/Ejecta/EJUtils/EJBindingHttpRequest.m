@@ -1,5 +1,5 @@
 #import "EJBindingHttpRequest.h"
-#import <JavaScriptCore/JSTypedArray.h>
+#import "EJConvertTypedArray.h"
 #import "EJJavaScriptView.h"
 
 @implementation EJBindingHttpRequest
@@ -259,15 +259,18 @@ EJ_BIND_FUNCTION(send, ctx, argc, argv) {
 		[request setValue:requestHeaders[header] forHTTPHeaderField:header];
 	}
 	
-	// Set body data (Typed Array or String)
-	if( argc > 0 ) {
+	// Set body data (Typed Array or String). If request is GET or HEAD ignore body data
+	// as per the spec.
+	if(
+		argc > 0 && !JSValueIsNull(ctx, argv[0]) &&
+		![method.lowercaseString isEqualToString:@"get"] &&
+		![method.lowercaseString isEqualToString:@"head"]
+	) {
 		if(
 			JSValueIsObject(ctx, argv[0]) &&
 			JSObjectGetTypedArrayType(ctx, (JSObjectRef)argv[0]) != kJSTypedArrayTypeNone
 		) {
-			size_t length = 0;
-			void *data = JSObjectGetTypedArrayDataPtr(ctx, (JSObjectRef)argv[0], &length);
-			request.HTTPBody = [NSData dataWithBytes:data length:length];
+			request.HTTPBody = JSObjectGetTypedArrayData(ctx, (JSObjectRef)argv[0]);
 		}
 		else {
 			NSString *requestBody = JSValueToNSString( ctx, argv[0] );
@@ -311,9 +314,7 @@ EJ_BIND_GET(response, ctx) {
 	if( !response || !responseBody ) { return JSValueMakeNull(ctx); }
 	
 	if( type == kEJHttpRequestTypeArrayBuffer ) {
-		JSObjectRef array = JSObjectMakeTypedArray(ctx, kJSTypedArrayTypeArrayBuffer, responseBody.length);
-		memcpy(JSObjectGetTypedArrayDataPtr(ctx, array, NULL), responseBody.bytes, responseBody.length);
-		return array;
+		return JSObjectMakeTypedArrayWithData(ctx, kJSTypedArrayTypeArrayBuffer, responseBody);
 	}
 	
 	

@@ -443,16 +443,16 @@
 (defn update-p1-gamepad! []
   (let [gamepads (.getGamepads js/navigator)]
     (println "setting p1 gamepad...")
-    (if-not (empty? gamepads)
-      (reset! p1-gamepad (first gamepads))
+    (if-not (= 0 (.-length gamepads))
+      (reset! p1-gamepad (aget gamepads 0))
       (reset! p1-gamepad nil))))
 
 (defn add-gamepad! [e]
   (println "gamepad added...")
   (let [index (.. e -gamepad -index)]
-  (swap! gamepads assoc (.. e -gamepad -id) index)
-  (when (= index 0)
-    (update-p1-gamepad!))))
+    (swap! gamepads assoc (.. e -gamepad -id) index)
+    (when (= index 0)
+      (update-p1-gamepad!))))
 
 (defn remove-gamepad! [e]
   (println "gamepad removed...")
@@ -460,31 +460,32 @@
   (update-p1-gamepad!))
 
 (defn add-event-listeners []
-  (if-not (.-ejecta js/window)
-    (do
-      (.addEventListener canvas "mousemove" handle-move)
-      (.addEventListener canvas "mouseup" handle-release)
-      (.addEventListener canvas "mousedown" handle-start))
-    (if is-tv?
-      (do
-        ;; need to query the gamepad axes and buttons during game loop to respond to events...
-        (.addEventListener js/window "gamepadconnected" add-gamepad!)
-        (.addEventListener js/window "gamepaddisconnected" remove-gamepad!))
-      (do
-        (.addEventListener canvas "touchmove" handle-touch-move)
-        (.addEventListener canvas "touchend" handle-touch-release)
-        (.addEventListener canvas "touchstart" handle-touch-start)))))
+  ;; need to query the gamepad axes and buttons during game loop to respond to events...
+  (.addEventListener js/window "gamepadconnected" add-gamepad!)
+  (.addEventListener js/window "gamepaddisconnected" remove-gamepad!)
+
+  (.addEventListener canvas "touchmove" handle-touch-move)
+  (.addEventListener canvas "touchend" handle-touch-release)
+  (.addEventListener canvas "touchstart" handle-touch-start)
+
+  (when-not (.-ejecta js/window)
+    (.addEventListener canvas "mousemove" handle-move)
+    (.addEventListener canvas "mouseup" handle-release)
+    (.addEventListener canvas "mousedown" handle-start)))
+
 
 (defn handle-gamepads []
-  (when-let [pad @p1-gamepad]
+  (when-let [pad (aget (.getGamepads js/navigator) 0)]
     (let [buttons (.-buttons pad)
           a       (aget buttons 0)
           up-v    (.-value (aget buttons 12))
           down-v  (.-value (aget buttons 13))
           left-v  (.-value (aget buttons 14))
           right-v (.-value (aget buttons 15))
-          left-stick-h (* (max left-v right-v) (if (> left-v right-v) -1 1))
-          left-stick-v (* (max up-v down-v)    (if (> down-v up-v) -1 1))]
+          d-pad-h (* (max left-v right-v) (if (> left-v right-v) -1 1))
+          d-pad-v (* (max up-v down-v)    (if (> down-v up-v) 1 -1))
+          left-stick-h (or (aget (.-axes pad) 0) d-pad-h)
+          left-stick-v (or (aget (.-axes pad) 1) d-pad-v)]
       (if (.-pressed a)
         (handle-start)
         ;; otherwise, see if pressed before...
@@ -495,7 +496,7 @@
               (or (not= left-stick-h 0)
                   (not= left-stick-v 0)))
         ;; values will be -1 to 1
-        (let [stick-angle (Math/atan2 left-stick-h left-stick-v)]
+        (let [stick-angle (Math/atan2 left-stick-h (* -1 left-stick-v))]
           #_(println "stick angle: " stick-angle)
           (handle-angle stick-angle))))))
 

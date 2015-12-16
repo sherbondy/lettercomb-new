@@ -37,36 +37,40 @@
   ;; inserting blank word should not change state
   ;;
   (insert [this word]
-    (let [letter    (first word)
-          r-word    (subs word 1)]
-      (if-not (str/blank? r-word)
-        (let [child-key (pick-child letter (:letter this))]
+    (let [letter (first word)
+          r-word (subs word 1)]
+      (if-not (str/blank? letter)
+        (let [child-key (pick-child letter (:letter this))
+              node      (get this child-key)]
             (->
               this
 
               ((fn [root]
-                (let [n-letter (first r-word)
-                      n-r-word (subs r-word 1)
-                      node (or (get this child-key)
-                               (letter-node n-letter))
-                      n-node (if-not (str/blank? r-word)
-                               (insert node r-word)
-                               node)]
-                 (assoc root
-                   child-key
-                   (update
-                     n-node
-                     :terminal?
-                     (fn [v]
-                       (println "n-node: " n-node)
-                       (println "n-letter: " n-letter)
-                       (println "n-r-word: " n-r-word)
-                       (or v
-                           (and
-                             (str/blank? n-r-word)
-                             (= (:letter n-node) n-letter)))))))))
+                  (if (= child-key :eq)
+                    ;; need to behave differently for eq kid
+                    (let [n-letter (first r-word)
+                          node     (or node (letter-node n-letter))
+                          n-node   (insert node r-word)]
+                      (assoc root child-key n-node))
+                    (let [node   (or node (letter-node letter))
+                          n-node (insert node word)]
+                      (assoc root child-key n-node)))))
+
+              ((fn [root]
+                 (update
+                   root
+                   :terminal?
+                    (fn [v]
+                      #_(println "n-node: " n-node)
+                      #_(println "n-letter: " n-letter)
+                      #_(println "n-r-word: " n-r-word)
+                      (or v
+                        (and
+                          (str/blank? r-word)
+                          (= (:letter root) letter)))))))
 
               ((fn [root] (assoc root :size (get-node-size root))))))
+        ;; return the node since there are no more letters
         this)))
 
   (search [this word]
@@ -76,20 +80,19 @@
       (println "letter: " letter, "rest: " r-word)
       ;; should always be checking equality with eq node
       ;; ORDER IS WRONG: should check if r-word is blank first...
-      (if (str/blank? r-word)
-        ;; node does not exist, terminate the search
-        (and
-          (:terminal? this)
-          (= letter (:letter this)))
-
-        (let [child-key (pick-child letter (:letter this))]
-          (println "child: " child-key)
-          (if-let [node (get this child-key)]
-            ;; @TODO: search for whole word still if letter not matched
-            (if (= letter (:letter this))
-              (search node r-word)
-              (search node word))
-            false)))))
+      (let [child-key (pick-child letter (:letter this))]
+        (println "child: " child-key)
+        (if-let [node (get this child-key)]
+          ;; @TODO: search for whole word still if letter not matched
+          (if (= letter (:letter node))
+            (if (str/blank? r-word)
+              ;; node does not exist, terminate the search
+              (and
+                (:terminal? node)
+                (= letter (:letter node)))
+              (search node r-word))
+            (search node word))
+          false))))
 
   (size [this]
     (:size this)))
@@ -151,7 +154,8 @@
     (let [an-node (insert a-node "an")]
       (is (= (size an-node) 2))
       (is (true? (search an-node "an")))
-      (is (false? (search an-node "a"))))))
+      (is (false? (search an-node "a")))
+      (is (false? (search an-node "hi"))))))
 
 
 (deftest test-noop
@@ -161,11 +165,20 @@
     (is (= (size and-node) 3))
     (is (true? (search and-node "and")))
     (is (true? (search and-node "an")))
+    (is (false? (search and-node "hey")))
     (let [still-and-node (insert and-node "")]
       (is (false? (search still-and-node "a")))
       (is (true? (search still-and-node "an")))
       (is (true? (search still-and-node "and")))
-      (is (= 3 (size still-and-node))))))
+      (is (= 3 (size still-and-node)))
+      (is (false? (search still-and-node "hey"))))))
+
+(deftest test-build-tst
+  (let [word-list #js["a" "abba" "cabba" "car" "cat" "dog"]
+        result    (build-tst word-list)]
+    (is (false? (search result "digg")))
+    (doseq [word word-list]
+      (is (true? (search result word))))))
 
 
-(run-tests)
+#_(run-tests)

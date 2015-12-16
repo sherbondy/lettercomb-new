@@ -15,6 +15,10 @@
 		3EBC19BE16CECE190036F9F3 /* EJBindingKeyInput.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EBC19BD16CECE190036F9F3 /* EJBindingKeyInput.m */; };
 		3EF00C5916C29360004599A4 /* EJJavaScriptView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EF00C5816C29360004599A4 /* EJJavaScriptView.m */; };
 		5B7B76761619DB9700691910 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B7B76751619DB9700691910 /* CoreText.framework */; };
+		AA0BD0FA1C21171200B1AF6C /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA0BD0F91C21171200B1AF6C /* JavaScriptCore.framework */; };
+		AA0BD0FC1C21172400B1AF6C /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA0BD0FB1C21172400B1AF6C /* JavaScriptCore.framework */; };
+		AA0BD1061C21176700B1AF6C /* EJConvertTypedArray.m in Sources */ = {isa = PBXBuildFile; fileRef = AA0BD1051C21176700B1AF6C /* EJConvertTypedArray.m */; };
+		AA0BD1071C21176700B1AF6C /* EJConvertTypedArray.m in Sources */ = {isa = PBXBuildFile; fileRef = AA0BD1051C21176700B1AF6C /* EJConvertTypedArray.m */; };
 		AA9F7C3A1C0A4FE5001F7AC4 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AA9F7C391C0A4FE5001F7AC4 /* libPods.a */; };
 		B6074FF315F8E41700D987F9 /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6074FF215F8E41600D987F9 /* GameKit.framework */; };
 		B607AB67132EA6C300D7C3EA /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B607AB66132EA6C300D7C3EA /* OpenAL.framework */; };
@@ -105,7 +109,6 @@
 		B6F11556167BD59D001F1324 /* EJBindingWebGLObjects.m in Sources */ = {isa = PBXBuildFile; fileRef = B6F11555167BD59B001F1324 /* EJBindingWebGLObjects.m */; };
 		B6F463A41636C3FB00FC89C1 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6F463A31636C3FA00FC89C1 /* SystemConfiguration.framework */; };
 		B6F629D116F353C800F16BAC /* EJBindingCanvasStyle.m in Sources */ = {isa = PBXBuildFile; fileRef = B6F629D016F353C700F16BAC /* EJBindingCanvasStyle.m */; };
-		B6F714801BCF116E0082A90F /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6F7147F1BCF116E0082A90F /* JavaScriptCore.framework */; };
 		B6F714841BCF126A0082A90F /* App in Resources */ = {isa = PBXBuildFile; fileRef = B68C5AEF132E6CD60015092E /* App */; };
 		B6F714891BCF126A0082A90F /* LaunchScreen-Logo.png in Resources */ = {isa = PBXBuildFile; fileRef = B637065F1A27C15200F42B90 /* LaunchScreen-Logo.png */; };
 		B6F7148B1BCF126A0082A90F /* Ejecta.js in Resources */ = {isa = PBXBuildFile; fileRef = B64CE63F166682700087CF94 /* Ejecta.js */; };
@@ -190,7 +193,6 @@
 		B6F714E61BCF126A0082A90F /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B607AD09132EB51000D7C3EA /* OpenGLES.framework */; };
 		B6F714E71BCF126A0082A90F /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B607AD0F132EB52400D7C3EA /* QuartzCore.framework */; };
 		B6F714E81BCF126A0082A90F /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6CFCCD81332F152001F17AF /* AVFoundation.framework */; };
-		B6F714F01BCF130C0082A90F /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6F714EF1BCF130C0082A90F /* JavaScriptCore.framework */; };
 		B6F9AFC0169F81D400ABD91A /* EJBindingWindowEvents.m in Sources */ = {isa = PBXBuildFile; fileRef = B6F9AFBF169F81D400ABD91A /* EJBindingWindowEvents.m */; };
 		B870BDE916F2E11A00827F01 /* EJBindingWebGLExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B870BDE816F2E11A00827F01 /* EJBindingWebGLExtensions.m */; };
 		CE8B02B9A5E74331FB61A271 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F667FACD5459D18F71AC8AFD /* libPods.a */; };
@@ -211,6 +213,10 @@
 		5B7B76751619DB9700691910 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		5E77E80D181365072A819482 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		6201773C004B27D4AECAA310 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+		AA0BD0F91C21171200B1AF6C /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		AA0BD0FB1C21172400B1AF6C /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS9.1.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
+		AA0BD1041C21176700B1AF6C /* EJConvertTypedArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EJConvertTypedArray.h; sourceTree = "<group>"; };
+		AA0BD1051C21176700B1AF6C /* EJConvertTypedArray.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EJConvertTypedArray.m; sourceTree = "<group>"; };
 		AA5D4C711C0D16D7000E701B /* Info-TV.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Info-TV.plist"; sourceTree = "<group>"; };
 		AA9F7C391C0A4FE5001F7AC4 /* libPods.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libPods.a; path = "Pods/../build/Debug-iphoneos/libPods.a"; sourceTree = "<group>"; };
 		B6074FF215F8E41600D987F9 /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
@@ -233,7 +239,6 @@
 		B63D256916E8DF33007E6034 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		B63D256B16E8DFAB007E6034 /* EJBindingWebSocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EJBindingWebSocket.h; sourceTree = "<group>"; };
 		B63D256C16E8DFAB007E6034 /* EJBindingWebSocket.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EJBindingWebSocket.m; sourceTree = "<group>"; };
-		B6468005188AB3260087F098 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = JavaScriptCore.framework; sourceTree = "<group>"; };
 		B64C87A716B80F400097CD5B /* EJGLProgram2D.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EJGLProgram2D.h; sourceTree = "<group>"; };
 		B64C87A816B80F410097CD5B /* EJGLProgram2D.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EJGLProgram2D.m; sourceTree = "<group>"; };
 		B64C87A916B80F450097CD5B /* EJGLProgram2DRadialGradient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EJGLProgram2DRadialGradient.h; sourceTree = "<group>"; };
@@ -371,9 +376,7 @@
 		B6F463A31636C3FA00FC89C1 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		B6F629CF16F353C600F16BAC /* EJBindingCanvasStyle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EJBindingCanvasStyle.h; sourceTree = "<group>"; };
 		B6F629D016F353C700F16BAC /* EJBindingCanvasStyle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EJBindingCanvasStyle.m; sourceTree = "<group>"; };
-		B6F7147F1BCF116E0082A90F /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Source/lib/ios/JavaScriptCore.framework; sourceTree = "<group>"; };
 		B6F714ED1BCF126A0082A90F /* LetterComb.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LetterComb.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		B6F714EF1BCF130C0082A90F /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Source/lib/tvos/JavaScriptCore.framework; sourceTree = "<group>"; };
 		B6F9AFBE169F81D400ABD91A /* EJBindingWindowEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EJBindingWindowEvents.h; sourceTree = "<group>"; };
 		B6F9AFBF169F81D400ABD91A /* EJBindingWindowEvents.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EJBindingWindowEvents.m; sourceTree = "<group>"; };
 		B870BDE716F2E10400827F01 /* EJBindingWebGLExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EJBindingWebGLExtensions.h; path = WebGL/EJBindingWebGLExtensions.h; sourceTree = "<group>"; };
@@ -386,7 +389,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B6F714801BCF116E0082A90F /* JavaScriptCore.framework in Frameworks */,
+				AA0BD0FA1C21171200B1AF6C /* JavaScriptCore.framework in Frameworks */,
 				B6E314E81BC7E51200D024C3 /* CoreMedia.framework in Frameworks */,
 				B6E314E61BC7D1D000D024C3 /* AVKit.framework in Frameworks */,
 				33BE9DE41868183900E0D16E /* MobileCoreServices.framework in Frameworks */,
@@ -417,8 +420,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA0BD0FC1C21172400B1AF6C /* JavaScriptCore.framework in Frameworks */,
 				AA9F7C3A1C0A4FE5001F7AC4 /* libPods.a in Frameworks */,
-				B6F714F01BCF130C0082A90F /* JavaScriptCore.framework in Frameworks */,
 				B6F714D41BCF126A0082A90F /* CoreMedia.framework in Frameworks */,
 				B6F714D51BCF126A0082A90F /* AVKit.framework in Frameworks */,
 				B6F714D61BCF126A0082A90F /* MobileCoreServices.framework in Frameworks */,
@@ -470,9 +473,9 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				AA0BD0FB1C21172400B1AF6C /* JavaScriptCore.framework */,
+				AA0BD0F91C21171200B1AF6C /* JavaScriptCore.framework */,
 				AA9F7C391C0A4FE5001F7AC4 /* libPods.a */,
-				B6F714EF1BCF130C0082A90F /* JavaScriptCore.framework */,
-				B6F7147F1BCF116E0082A90F /* JavaScriptCore.framework */,
 				B6E314E71BC7E51200D024C3 /* CoreMedia.framework */,
 				B6E314E11BC7D08A00D024C3 /* AVKit.framework */,
 				33BE9DE31868183900E0D16E /* MobileCoreServices.framework */,
@@ -557,6 +560,8 @@
 				B6E314E41BC7D1BF00D024C3 /* EJBindingVideo.m */,
 				B64CE63D166682700087CF94 /* EJConvert.h */,
 				B64CE63E166682700087CF94 /* EJConvert.m */,
+				AA0BD1041C21176700B1AF6C /* EJConvertTypedArray.h */,
+				AA0BD1051C21176700B1AF6C /* EJConvertTypedArray.m */,
 				B64CE640166682700087CF94 /* EJTimer.h */,
 				B64CE641166682700087CF94 /* EJTimer.m */,
 				B64CE63F166682700087CF94 /* Ejecta.js */,
@@ -645,7 +650,6 @@
 		B64CE652166682700087CF94 /* lib */ = {
 			isa = PBXGroup;
 			children = (
-				B6468005188AB3260087F098 /* JavaScriptCore.framework */,
 				B63D255C16E8DE23007E6034 /* SocketRocket */,
 			);
 			path = lib;
@@ -927,6 +931,7 @@
 			files = (
 				B630048916C1A2390036D8D4 /* EJBindingTextMetrics.m in Sources */,
 				B64C87AC16B81BAA0097CD5B /* EJGLProgram2D.m in Sources */,
+				AA0BD1061C21176700B1AF6C /* EJConvertTypedArray.m in Sources */,
 				B64C87AE16B81BAA0097CD5B /* EJGLProgram2DRadialGradient.m in Sources */,
 				B64CE662166682700087CF94 /* EJAppViewController.m in Sources */,
 				B64CE663166682700087CF94 /* EJAudioSourceAVAudio.m in Sources */,
@@ -1006,6 +1011,7 @@
 				B6F714941BCF126A0082A90F /* EJAppViewController.m in Sources */,
 				B6F714951BCF126A0082A90F /* EJAudioSourceAVAudio.m in Sources */,
 				B6F714961BCF126A0082A90F /* EJAudioSourceOpenAL.m in Sources */,
+				AA0BD1071C21176700B1AF6C /* EJConvertTypedArray.m in Sources */,
 				B6F714971BCF126A0082A90F /* EJBindingAudio.m in Sources */,
 				B6F714981BCF126A0082A90F /* EJOpenALBuffer.m in Sources */,
 				B6F714991BCF126A0082A90F /* EJSharedOpenALManager.m in Sources */,
