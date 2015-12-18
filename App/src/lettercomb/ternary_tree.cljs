@@ -199,6 +199,27 @@
     (let [result (build-tst english-words)]
       (reset! english result))))
 
+;; FUN STATS
+;; (size @english)
+;; = 387888
+;; (js/Math.log2 387888)
+;; = 18.56
+;; If we get rid of 1 and 2 letter words:
+;; (def reasonable-words (filterv #(> (count %) 2) js/WORDS))
+;; (set! js/WORDS (clj->js reasonable-words))
+;; (size @english)
+;; = 387885
+;; Damn, huge space waste to make pointers 32-bits because they don't fit in 16-bits.
+;; ideas:
+;; - flatten single-node paths (chain of nodes with one child)
+;;   Store pointers to most frequent in extra bits from letter encoding?
+;; - split into 3 separate trees (introduces redundancy...)
+;;   ~ 15.8 (assuming redundancy factor is not too high)
+;; Alternatively, just rely on gzip to notice the blank space.
+;; - We could sacrifice lookup time for space by making pointers not aligned,
+;; e.g. use two 32-bit addresses to encode all three pointers
+;; (< (* 19 3) 64)
+;; Need to do some testing, but maybe the slowdown is insignificant.
 
 ;; @TODO: add property-based tests to validate invariants
 ;; like the size of the parent is always larger than children,
