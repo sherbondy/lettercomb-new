@@ -2,9 +2,13 @@
   (:require [clojure.string :as str]
             [cljs.test :refer-macros [deftest is testing run-tests]]))
 
+;; http://algs4.cs.princeton.edu/52trie/TST.java.html
+
 (defprotocol TSTree
   ;; returns true or false if tree contains word
-  (search [this word])
+  (contains? [this word])
+  ;; returns the actual leaf node | nil corresponding to word
+  (get [this word])
   ;; returns a new tree with the word added
   (insert [this word])
   (size [this]))
@@ -33,66 +37,51 @@
 ;; left / center / right (tst-node, can be nil)
 ;; size = number of subnodes...
 (defrecord TSTNode [letter terminal? lo eq hi size]
+  (-insert [this word index]
+    (let [letter     (get word index)
+          child-key  (pick-child letter (:letter this))
+          next-index (if (= child-key :eq) (inc index) index)
+          new-node   (letter-node letter)
+          child-node (or (get this child-key) new-node)]
+      (if (= child-key :eq)
+        (if (< next-index (count word))
+          (assoc this child-key (-insert child-node word next-index))
+          (assoc child-node :terminal? true))
+        (assoc this child-key (-insert child-node word next-index)))))
+
+  (-get [this word index]
+    (cond
+      (nil? word) nil
+      (= (count word) 0) nil
+      :else
+      (let [letter (get word index)]
+        (println "this: " this)
+        (println "letter: " letter, "rest: " r-word)
+        ;; should always be checking equality with eq node
+        ;; ORDER IS WRONG: should check if r-word is blank first...
+        (let [child-key  (pick-child letter (:letter this))
+              next-index (if (= child-key :eq) (inc index) index)]
+          (println "child: " child-key)
+          (if (= child-key :eq)
+            (if (< next-index (count word))
+              (-get this child-key next-index)
+              this)
+            (-get this child-key next-index))))))
+
   TSTree
   ;; inserting blank word should not change state
-  ;;
   (insert [this word]
-    (let [letter (first word)
-          r-word (subs word 1)]
-      (if-not (str/blank? letter)
-        (let [child-key (pick-child letter (:letter this))
-              node      (get this child-key)]
-            (->
-              this
+    (-insert this word 0))
 
-              ((fn [root]
-                  (if (= child-key :eq)
-                    ;; need to behave differently for eq kid
-                    (let [n-letter (first r-word)
-                          node     (or node (letter-node n-letter))
-                          n-node   (insert node r-word)]
-                      (assoc root child-key n-node))
-                    (let [node   (or node (letter-node letter))
-                          n-node (insert node word)]
-                      (assoc root child-key n-node)))))
+  (get [this word]
+    (cond
+      (str/blank? word)  nil
+      (= (count word) 0) nil
+      :else (-get this word 0)))
 
-              ((fn [root]
-                 (update
-                   root
-                   :terminal?
-                    (fn [v]
-                      #_(println "n-node: " n-node)
-                      #_(println "n-letter: " n-letter)
-                      #_(println "n-r-word: " n-r-word)
-                      (or v
-                        (and
-                          (str/blank? r-word)
-                          (= (:letter root) letter)))))))
-
-              ((fn [root] (assoc root :size (get-node-size root))))))
-        ;; return the node since there are no more letters
-        this)))
-
-  (search [this word]
-    (let [letter (first word)
-          r-word (subs word 1)]
-      (println "this: " this)
-      (println "letter: " letter, "rest: " r-word)
-      ;; should always be checking equality with eq node
-      ;; ORDER IS WRONG: should check if r-word is blank first...
-      (let [child-key (pick-child letter (:letter this))]
-        (println "child: " child-key)
-        (if-let [node (get this child-key)]
-          ;; @TODO: search for whole word still if letter not matched
-          (if (= letter (:letter node))
-            (if (str/blank? r-word)
-              ;; node does not exist, terminate the search
-              (and
-                (:terminal? node)
-                (= letter (:letter node)))
-              (search node r-word))
-            (search node word))
-          false))))
+  (contains? [this word]
+    (let [node (get this word)]
+      (and (some? node) (:terminal? node))))
 
   (size [this]
     (:size this)))
