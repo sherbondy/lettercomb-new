@@ -1,6 +1,7 @@
 target
-index.js
-index.map.js
+resources/public/js/index.js
+resources/public/js/index-dev.js
+*.map.js
 *.swp
 out
 .lein-repl-history
@@ -8,3 +9,4 @@ out
 *.iml
 figwheel_server.log
 resources/public/js/out
+resources/public/js/out-min
