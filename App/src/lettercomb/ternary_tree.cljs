@@ -10,13 +10,14 @@
   ;; returns the actual leaf node | nil corresponding to word
   (search [this word])
   ;; returns a new tree with the word added
-  (insert [this word])
-  (size [this]))
+  (insert [this word]))
 
 (defprotocol ITSTNode
   (-insert [this word index])
   (-search [this word index])
-  (-resize [this]))
+  (-resize [this])
+  (size [this])
+  (depth [this]))
 
 ;; @TODO: BUG: Individual letters return true for search
 
@@ -32,20 +33,26 @@
     (apply + (map #(get-in node [% :size] 0)
                   [:lo :eq :hi]))))
 
+(defn get-node-depth [node]
+  (inc
+    (apply max (map #(get-in node [% :depth] 0)
+                    [:lo :eq :hi]))))
+
 (declare TSTNode)
 
 (defn letter-node [letter]
-  (TSTNode. letter false nil nil nil 1))
+  (TSTNode. letter false nil nil nil 1 1))
 
 ;; a ternary search tree node has a:
 ;; letter (its value)
 ;; terminal? (boolean, indicates whether this node marks the end of a valid search word)
 ;; left / center / right (tst-node, can be nil)
 ;; size = number of subnodes...
-(defrecord TSTNode [letter terminal? lo eq hi size]
+(defrecord TSTNode [letter terminal? lo eq hi size depth]
   ITSTNode
   (-resize [this]
-    (assoc this :size (get-node-size this)))
+    (assoc this :size  (get-node-size this)
+                :depth (get-node-depth this)))
 
   (-insert [this word index]
     (let [letter      (get word index)
@@ -76,6 +83,12 @@
           (when-let [child-node (get this child-key)]
             (-search child-node word next-index))))))
 
+  (size [this]
+    (:size this))
+
+  (depth [this]
+    (:depth this))
+
 
   TSTree
   (insert [this word]
@@ -90,10 +103,7 @@
 
   (has? [this word]
     (let [node (search this word)]
-      (and (some? node) (:terminal? node))))
-
-  (size [this]
-    (:size this)))
+      (and (some? node) (:terminal? node)))))
 
 
 
@@ -124,10 +134,9 @@
       #_(println "left array: " left-array ", median: " med-word
                ", right array: " right-array)
       (->
-        tst
-        (#(if %
-            (insert % med-word)
-            (build-root-word-tst med-word)))
+        (if tst
+          (insert tst med-word)
+          (build-root-word-tst med-word))
 
         (#(cond (empty? left-array) %
                 (= 1 (count left-array)) (insert % (first left-array))
@@ -142,7 +151,7 @@
    converts into a ternary search tree, returning the TSTree (TSTNode root)"
   (let [cloned-array (.. dict-array (slice 0 (.-length dict-array)))
         sorted-array (.sort cloned-array)]
-    (add-slice-tst sorted-array nil)))
+    (trampoline add-slice-tst sorted-array nil)))
 
 
 (deftest test-letter-node
@@ -160,7 +169,10 @@
   (let [a-node (letter-node "a")
         an-node (insert a-node "an")
         and-node (insert an-node "and")]
+    (is (= (size an-node) 2))
+    (is (= (depth an-node) 2))
     (is (= (size and-node) 3))
+    (is (= 3 (depth and-node)))
     (is (true? (has? and-node "and")))
     (is (true? (has? and-node "an")))
     (is (false? (has? and-node "hey")))
@@ -169,6 +181,7 @@
       (is (true? (has? still-and-node "an")))
       (is (true? (has? still-and-node "and")))
       (is (= 3 (size still-and-node)))
+      (is (= 3 (depth still-and-node)))
       (is (false? (has? still-and-node "hey"))))))
 
 (deftest test-build-tst
@@ -177,6 +190,14 @@
     (is (false? (has? result "digg")))
     (doseq [word word-list]
       (is (true? (has? result word))))))
+
+
+(def english (atom nil))
+
+(defn build-english-tst! []
+  (when-let [english-words js/WORDS]
+    (let [result (build-tst english-words)]
+      (reset! english result))))
 
 
 ;; @TODO: add property-based tests to validate invariants
