@@ -6,12 +6,17 @@
 
 (defprotocol TSTree
   ;; returns true or false if tree contains word
-  (contains? [this word])
+  (has? [this word])
   ;; returns the actual leaf node | nil corresponding to word
-  (get [this word])
+  (search [this word])
   ;; returns a new tree with the word added
   (insert [this word])
   (size [this]))
+
+(defprotocol ITSTNode
+  (-insert [this word index])
+  (-search [this word index])
+  (-resize [this]))
 
 ;; @TODO: BUG: Individual letters return true for search
 
@@ -21,6 +26,7 @@
     (> letter node-letter) :hi
     :else :eq))
 
+;; we increment to include the root node as well as its children
 (defn get-node-size [node]
   (inc
     (apply + (map #(get-in node [% :size] 0)
@@ -37,50 +43,61 @@
 ;; left / center / right (tst-node, can be nil)
 ;; size = number of subnodes...
 (defrecord TSTNode [letter terminal? lo eq hi size]
-  (-insert [this word index]
-    (let [letter     (get word index)
-          child-key  (pick-child letter (:letter this))
-          next-index (if (= child-key :eq) (inc index) index)
-          new-node   (letter-node letter)
-          child-node (or (get this child-key) new-node)]
-      (if (= child-key :eq)
-        (if (< next-index (count word))
-          (assoc this child-key (-insert child-node word next-index))
-          (assoc child-node :terminal? true))
-        (assoc this child-key (-insert child-node word next-index)))))
+  ITSTNode
+  (-resize [this]
+    (assoc this :size (get-node-size this)))
 
-  (-get [this word index]
+  (-insert [this word index]
+    (let [letter      (get word index)
+          child-key   (pick-child letter (:letter this))
+          next-index  (if (= child-key :eq) (inc index) index)
+          next-letter (get word next-index)]
+      (println "INSERT")
+      (println "this: " this)
+      (println "letter: " letter ", rest: " (nth word (inc index))
+               ", child key: " child-key ", next index: " next-index)
+      (->
+        (if (and (= child-key :eq) (>= next-index (count word)))
+          (update this :terminal?
+                  (fn [v] (or v (= letter (:letter this)))))
+          (let [child-node (or (get this child-key)
+                               (letter-node next-letter))]
+            (assoc this child-key (-insert child-node word next-index))))
+
+        (-resize))))
+
+  (-search [this word index]
     (cond
-      (nil? word) nil
+      (str/blank? word) nil
       (= (count word) 0) nil
       :else
       (let [letter (get word index)]
+        (println "SEARCH")
         (println "this: " this)
-        (println "letter: " letter, "rest: " r-word)
+        (println "letter: " letter, "rest: " (nth word (inc index)))
         ;; should always be checking equality with eq node
-        ;; ORDER IS WRONG: should check if r-word is blank first...
         (let [child-key  (pick-child letter (:letter this))
               next-index (if (= child-key :eq) (inc index) index)]
           (println "child: " child-key)
-          (if (= child-key :eq)
-            (if (< next-index (count word))
-              (-get this child-key next-index)
-              this)
-            (-get this child-key next-index))))))
+          (if (and (= child-key :eq) (= next-index (count word)))
+            this
+            (when-let [child-node (get this child-key)]
+              (-search child-node word next-index)))))))
+
 
   TSTree
   ;; inserting blank word should not change state
   (insert [this word]
     (-insert this word 0))
 
-  (get [this word]
+  (search [this word]
     (cond
       (str/blank? word)  nil
       (= (count word) 0) nil
-      :else (-get this word 0)))
+      :else (-search this word 0)))
 
-  (contains? [this word]
-    (let [node (get this word)]
+  (has? [this word]
+    (let [node (search this word)]
       (and (some? node) (:terminal? node))))
 
   (size [this]
@@ -139,12 +156,12 @@
 (deftest test-letter-node
   (let [a-node (letter-node "a")]
     (is (= (size a-node) 1))
-    (is (false? (search a-node "a")))
+    (is (false? (has? a-node "a")))
     (let [an-node (insert a-node "an")]
       (is (= (size an-node) 2))
-      (is (true? (search an-node "an")))
-      (is (false? (search an-node "a")))
-      (is (false? (search an-node "hi"))))))
+      (is (true? (has? an-node "an")))
+      (is (false? (has? an-node "a")))
+      (is (false? (has? an-node "hi"))))))
 
 
 (deftest test-noop
@@ -152,22 +169,22 @@
         an-node (insert a-node "an")
         and-node (insert an-node "and")]
     (is (= (size and-node) 3))
-    (is (true? (search and-node "and")))
-    (is (true? (search and-node "an")))
-    (is (false? (search and-node "hey")))
+    (is (true? (has? and-node "and")))
+    (is (true? (has? and-node "an")))
+    (is (false? (has? and-node "hey")))
     (let [still-and-node (insert and-node "")]
-      (is (false? (search still-and-node "a")))
-      (is (true? (search still-and-node "an")))
-      (is (true? (search still-and-node "and")))
+      (is (false? (has? still-and-node "a")))
+      (is (true? (has? still-and-node "an")))
+      (is (true? (has? still-and-node "and")))
       (is (= 3 (size still-and-node)))
-      (is (false? (search still-and-node "hey"))))))
+      (is (false? (has? still-and-node "hey"))))))
 
 (deftest test-build-tst
   (let [word-list #js["a" "abba" "cabba" "car" "cat" "dog"]
         result    (build-tst word-list)]
-    (is (false? (search result "digg")))
+    (is (false? (has? result "digg")))
     (doseq [word word-list]
-      (is (true? (search result word))))))
+      (is (true? (has? result word))))))
 
 
 #_(run-tests)

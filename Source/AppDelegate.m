@@ -12,7 +12,7 @@
 @implementation AppDelegate
 @synthesize window;
 
-#pragma mark -
+#pragma mark -w1
 #pragma mark Application lifecycle
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
