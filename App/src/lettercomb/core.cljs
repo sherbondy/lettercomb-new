@@ -459,6 +459,7 @@
   (swap! gamepads dissoc (.. e -gamepad -id))
   (update-p1-gamepad!))
 
+
 (defn add-event-listeners []
   ;; need to query the gamepad axes and buttons during game loop to respond to events...
   (.addEventListener js/window "gamepadconnected" add-gamepad!)
@@ -507,6 +508,14 @@
 ;; 5 minutes, dog
 (def game-duration-ms (* 5 60 1000))
 
+(defn now [] (.getTime (js/Date.)))
+
+(defn get-seconds-left []
+  (let [time-since-start (- @start-time (now))
+        time-left-ms     (max (+ game-duration-ms time-since-start) 0)
+        seconds-left     (Math/floor (/ time-left-ms 1000))]
+    seconds-left))
+
 ;;; timer is currently in absolute time
 (defn game-loop []
   (js/requestAnimationFrame game-loop)
@@ -516,11 +525,7 @@
     (draw-cannon! ctx the-center radius
                   @angle @next-letter)
     (draw-score! ctx @score)
-    (let [time-left-ms (+ game-duration-ms
-                          (- @start-time
-                             (.getTime (js/Date.))))
-          seconds-left (Math/floor (/ time-left-ms 1000))]
-      (draw-timer! ctx seconds-left))
+    (draw-timer! ctx (get-seconds-left))
     (draw-menu! ctx)))
 
 (defn init! []

@@ -52,13 +52,10 @@
           child-key   (pick-child letter (:letter this))
           next-index  (if (= child-key :eq) (inc index) index)
           next-letter (get word next-index)]
-      (println "INSERT")
-      (println "this: " this)
-      (println "letter: " letter ", rest: " (nth word (inc index))
-               ", child key: " child-key ", next index: " next-index)
       (->
         (if (and (= child-key :eq) (>= next-index (count word)))
           (update this :terminal?
+                  ;; inserting blank word should not change state
                   (fn [v] (or v (= letter (:letter this)))))
           (let [child-node (or (get this child-key)
                                (letter-node next-letter))]
@@ -71,22 +68,16 @@
       (str/blank? word) nil
       (= (count word) 0) nil
       :else
-      (let [letter (get word index)]
-        (println "SEARCH")
-        (println "this: " this)
-        (println "letter: " letter, "rest: " (nth word (inc index)))
-        ;; should always be checking equality with eq node
-        (let [child-key  (pick-child letter (:letter this))
-              next-index (if (= child-key :eq) (inc index) index)]
-          (println "child: " child-key)
-          (if (and (= child-key :eq) (= next-index (count word)))
-            this
-            (when-let [child-node (get this child-key)]
-              (-search child-node word next-index)))))))
+      (let [letter (get word index)
+            child-key  (pick-child letter (:letter this))
+            next-index (if (= child-key :eq) (inc index) index)]
+        (if (and (= child-key :eq) (= next-index (count word)))
+          this
+          (when-let [child-node (get this child-key)]
+            (-search child-node word next-index))))))
 
 
   TSTree
-  ;; inserting blank word should not change state
   (insert [this word]
     (-insert this word 0))
 
@@ -94,7 +85,8 @@
     (cond
       (str/blank? word)  nil
       (= (count word) 0) nil
-      :else (-search this word 0)))
+      :else
+      (-search this word 0)))
 
   (has? [this word]
     (let [node (search this word)]
@@ -185,6 +177,11 @@
     (is (false? (has? result "digg")))
     (doseq [word word-list]
       (is (true? (has? result word))))))
+
+
+;; @TODO: add property-based tests to validate invariants
+;; like the size of the parent is always larger than children,
+;; no nil nodes, etc.
 
 
 #_(run-tests)
