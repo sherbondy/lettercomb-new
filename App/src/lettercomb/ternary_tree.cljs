@@ -227,3 +227,34 @@
 
 
 #_(run-tests)
+
+
+;; We are going to encode the dictionary as a binary like so:
+;; header is a 32 bit UInt which encodes the size of the dictionary.
+;; Each node is encoded by:
+;; [ 1 Int8 ] [ Uint32 | Uint32 | Uint32 ]
+;; Sign bit = terminal? : 1 => terminal, 0 => not terminal
+;; Remaining 7 bits: encode the letter. Only actually need 5 bits
+
+;; Uint32 triplet encodes the lokid, eq, and hikid pointers.
+;; 0 is reserved to represent a nil pointer,
+;; so the root node starts at 1 and counting proceeds from there.
+
+;; Expected size of this representation: 104 bits per node,
+;; 13 bytes per node
+;; 13 * 387888 = 5.042544 MB
+;; damn, that's... bigger than the uncompressed representation.
+;; If we do chunking, we only actually need 2 32-bit Uints for the pointers,
+;; with an expected size of:
+;; 9 bytes per node:
+;; 9 * 387888 = 3.490992 MB
+;; Still bigger than the 2.3 MB json encoding.
+
+;; hmm, but what is the json encoding's actual size in MEMORY?
+
+
+;; TERNARY DAG: http://www.strchr.com/ternary_dags
+;; "Proper name" => DAWG: Directed acyclic word graph:
+;; https://en.wikipedia.org/wiki/Directed_acyclic_word_graph
+;; Yields a third the nodes!
+;; => 1.2 MB expected, half the size of the naive representation.
