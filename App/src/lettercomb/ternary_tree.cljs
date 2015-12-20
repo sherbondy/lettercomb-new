@@ -234,7 +234,7 @@
 ;; Each node is encoded by:
 ;; [ 1 Int8 ] [ Uint32 | Uint32 | Uint32 ]
 ;; Sign bit = terminal? : 1 => terminal, 0 => not terminal
-;; Remaining 7 bits: encode the letter. Only actually need 5 bits
+;; Remaining 7 bits: encode the letter. Only actually need 5 bits.
 
 ;; Uint32 triplet encodes the lokid, eq, and hikid pointers.
 ;; 0 is reserved to represent a nil pointer,
@@ -256,5 +256,11 @@
 ;; TERNARY DAG: http://www.strchr.com/ternary_dags
 ;; "Proper name" => DAWG: Directed acyclic word graph:
 ;; https://en.wikipedia.org/wiki/Directed_acyclic_word_graph
+;; aaka "Minimal Acyclic Finite State Automaton" (MA-FSA)
+;; http://stevehanov.ca/blog/index.php?id=115
 ;; Yields a third the nodes!
 ;; => 1.2 MB expected, half the size of the naive representation.
+
+;; This is a really nice, clear writeup of an algorithm that takes advantage
+;; of data I have already tagged (size and depth):
+;; http://www.wutka.com/dawg.html
