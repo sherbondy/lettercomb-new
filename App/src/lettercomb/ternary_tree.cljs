@@ -146,6 +146,8 @@
                 (= 1 (count right-array)) (insert % (first right-array))
                 :else (add-slice-tst right-array %)))))))
 
+;; hooray for trampolines:
+;; ;; http://jakemccrary.com/blog/2010/12/06/trampolining-through-mutual-recursion/
 (defn build-tst [dict-array]
   "takes a js array as input, clones and sorts it, then
    converts into a ternary search tree, returning the TSTree (TSTNode root)"
@@ -264,3 +266,11 @@
 ;; This is a really nice, clear writeup of an algorithm that takes advantage
 ;; of data I have already tagged (size and depth):
 ;; http://www.wutka.com/dawg.html
+
+
+;; test suite: look up and profile time for lookup of every word in the english dictionary
+;; to verify complete correctness.
+;; then do generative testing to make FAKE WORDS and verify that none of them (if not in the actual english dictionary)
+;; return false positives. Also profile timing for this.
+;; do comparison with standard javascript object and ES6 Hash Map object.
+;; as well as cljs hash map data structure.
