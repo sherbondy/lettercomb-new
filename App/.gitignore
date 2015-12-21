@@ -8,5 +8,5 @@ out
 .nrepl-port
 *.iml
 figwheel_server.log
-resources/public/js/out
-resources/public/js/out-min
+resources/public/js/out/
+resources/public/js/out-min/

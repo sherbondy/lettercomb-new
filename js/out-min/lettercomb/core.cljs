@@ -20,6 +20,7 @@
 (def is-tv? (some? (re-find #"AppleTV" (.. js/navigator -userAgent))))
 
 (def radius (if is-tv? 48 24))
+(def lookahead-radius (* radius 0.75))
 (def line-width (if is-tv? 4 2))
 
 (def angle               (atom Math/PI))
@@ -27,7 +28,8 @@
 (def hovered-cell        (atom [0 0]))
 ;; the cell in the cannon's trajectory
 (def open-cell           (atom [0 0]))
-(def next-letter         (atom :A))
+(def n-lookahead 4)
+(def next-letters        (atom (mapv #(l/rand-letter) (range n-lookahead))))
 ;; maintain a vector of the currently hovered word cells
 (def current-word-cells  (atom []))
 ;; should probably maintain a set of word cells
@@ -137,17 +139,49 @@
                (timer-location 1)))
   (.restore ctx))
 
+
+(defn center-at [[col row] [left top] radius]
+  (let [hex-w    (hex-width radius)
+        y-offset (* 3 0.5 radius)
+        x-offset (if (odd? row)
+                   (/ hex-w 2.0)
+                   0)]
+    [(+ left (* col hex-w) x-offset)
+     (+ top  (* row y-offset))]))
+
+(defn board-center [board left-top radius]
+  (let [mid-row (Math/floor (/ (count board) 2))
+        mid-col (Math/floor (/ (count (board 0)) 2))]
+    (center-at [mid-col mid-row] left-top radius)))
+
+(def canvas-offset
+  [(.-offsetLeft canvas) (.-offsetTop canvas)])
+
+(def the-center
+  (board-center @board left-top radius))
+
+(def center-bot [(the-center 0) (window-height)])
+
+;; the center of the board relative to the whole page
+;; only useful in browser, not ejecta...
+(def page-center
+  [(+ (the-center 0) (canvas-offset 0))
+   (+ (the-center 1) (canvas-offset 1))])
+
 (def font-size (/ (* radius 2) 3))
 (def q-font-size (/ font-size 4))
+
+(def lookahead-width (* n-lookahead (hex-width lookahead-radius)))
 
 (def menu-size [(* radius 4) (* radius 1.5)])
 
 ;; bottom left position of the menu
-(def menu-position [(- (/ (window-width) 2)
-                       (/ (menu-size 0) 2))
-                    (- (window-height)
+(def menu-position [(- (center-bot 0)
+                       (/ (menu-size 0) 2)
+                       (/ lookahead-width 2))
+                    (- (center-bot 1)
                        (menu-size 1)
-                       (* radius 0.5))])
+                       16)])
 
 (defn draw-menu! [ctx]
   (.save ctx)
@@ -196,15 +230,6 @@
   (draw-letter! ctx center (name letter)))
 
 
-(defn center-at [[col row] [left top] radius]
-  (let [hex-w    (hex-width radius)
-        y-offset (* 3 0.5 radius)
-        x-offset (if (odd? row)
-                   (/ hex-w 2.0)
-                   0)]
-    [(+ left (* col hex-w) x-offset)
-     (+ top  (* row y-offset))]))
-
 (defn fill-board! [ctx board left-top radius]
   "left-top = the [left top] center point."
   (doseq [row (range (count board))
@@ -221,10 +246,6 @@
           (draw-letter-hex! ctx center radius
                             letter color))))))
 
-(defn board-center [board left-top radius]
-  (let [mid-row (Math/floor (/ (count board) 2))
-        mid-col (Math/floor (/ (count (board 0)) 2))]
-    (center-at [mid-col mid-row] left-top radius)))
 
 (defn draw-cannon! [ctx center radius angle next-letter]
   (.save ctx)
@@ -293,18 +314,6 @@
 (defn occupied? [board cell]
   (not= :blank (g/get-odd-r board cell)))
 
-(def canvas-offset
-  [(.-offsetLeft canvas) (.-offsetTop canvas)])
-
-(def the-center
-  (board-center @board left-top radius))
-
-;; the center of the board relative to the whole page
-;; only useful in browser, not ejecta...
-(def page-center
-  [(+ (the-center 0) (canvas-offset 0))
-   (+ (the-center 1) (canvas-offset 1))])
-
 ;; point = the origin point of the cannon
 ;; or the current point
 (defn destination-cell [board angle delta & point]
@@ -346,8 +355,15 @@
                      [(+ i start-col) start-row]
                      (keyword (nth up-word i))))))
 
-(defn pick-random-letter! []
+#_(defn pick-random-letter! []
   (reset! next-letter (l/rand-letter)))
+
+;; we really want a lazy stream of random letters...
+(defn update-next-letter! []
+  (swap! next-letters
+         (fn [prev]
+           (conj (subvec prev 1)
+                 (l/rand-letter)))))
 
 (defn hover-cell! [e]
   (let [v     (e->v e)
@@ -401,9 +417,9 @@
   (reset! touch-down? false)
   (when e (handle-move e))
   (when (and @open-cell (empty? @current-word-cells))
-    (write-letter! board @open-cell @next-letter)
+    (write-letter! board @open-cell (first @next-letters))
     (reset! open-cell nil)
-    (pick-random-letter!))
+    (update-next-letter!))
 
   (let [hovered-word (selected-word @board @current-word-cells)]
     (when (contains? word-set hovered-word)
@@ -459,6 +475,7 @@
   (swap! gamepads dissoc (.. e -gamepad -id))
   (update-p1-gamepad!))
 
+
 (defn add-event-listeners []
   ;; need to query the gamepad axes and buttons during game loop to respond to events...
   (.addEventListener js/window "gamepadconnected" add-gamepad!)
@@ -507,6 +524,25 @@
 ;; 5 minutes, dog
 (def game-duration-ms (* 5 60 1000))
 
+(defn now [] (.getTime (js/Date.)))
+
+(defn get-seconds-left []
+  (let [time-since-start (- @start-time (now))
+        time-left-ms     (max (+ game-duration-ms time-since-start) 0)
+        seconds-left     (Math/floor (/ time-left-ms 1000))]
+    seconds-left))
+
+(defn draw-lookahead! [ctx center-bot radius]
+  (doseq [i (range 1 n-lookahead)]
+    (let [letter   (get @next-letters i)
+          color    (letter-color letter)
+          x-offset (* (- i (bit-shift-right n-lookahead 1))
+                      (hex-width radius))]
+      (draw-letter-hex! ctx
+                        [(+ x-offset (center-bot 0) (/ lookahead-width 2))
+                         (- (center-bot 1) radius 16)]
+                        radius letter color))))
+
 ;;; timer is currently in absolute time
 (defn game-loop []
   (js/requestAnimationFrame game-loop)
@@ -514,13 +550,10 @@
     (blacken! ctx)
     (fill-board! ctx @board left-top radius)
     (draw-cannon! ctx the-center radius
-                  @angle @next-letter)
+                  @angle (first @next-letters))
+    (draw-lookahead! ctx center-bot lookahead-radius)
     (draw-score! ctx @score)
-    (let [time-left-ms (+ game-duration-ms
-                          (- @start-time
-                             (.getTime (js/Date.))))
-          seconds-left (Math/floor (/ time-left-ms 1000))]
-      (draw-timer! ctx seconds-left))
+    (draw-timer! ctx (get-seconds-left))
     (draw-menu! ctx)))
 
 (defn init! []
